@@ -1,0 +1,7 @@
+body {
+	background-image: url('./assets/table_bg.jpg');
+	background-size: contain;
+	width: 100wv;
+	height: 100wh;
+	overflow: hidden;
+}
