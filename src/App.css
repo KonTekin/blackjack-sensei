@@ -20,13 +20,16 @@ body {
 	width: 100%;
 	height: 100%;
 	border-radius: 20px;
-	transition: transform 0.5s;
+	transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 	transform-style: preserve-3d;
 }
 
-.playing-card:hover .flip-card {
-	transform: rotateY(-180deg);
+.deal-card {
+	transform: translate(500px, 500px) rotateY(-180deg);
 }
+
+/* .playing-card:hover .flip-card {
+} */
 
 .front-side,
 .back-side {
@@ -46,4 +49,20 @@ body {
 	width: 100%;
 	height: 100%;
 	/* z-index: 10; */
+}
+
+.general-btn {
+	position: absolute;
+	top: 30px;
+	right: 30px;
+	padding: 20px;
+}
+
+.player-hand {
+	width: 100px;
+	height: 100px;
+	background-color: bisque;
+	position: absolute;
+	top: 500px;
+	left: 1000px;
 }
