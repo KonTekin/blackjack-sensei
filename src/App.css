@@ -7,11 +7,46 @@ body {
 	overflow: hidden;
 }
 
+.app-container {
+	width: 100vw;
+	height: 100vh;
+	display: grid;
+	grid-template-columns: repeat(10, 1fr);
+	grid-template-rows: repeat(12, 1fr);
+}
+.dealer-hand-container {
+	grid-column: 5/7;
+	grid-row: 2/5;
+	background-color: aquamarine;
+	text-align: center;
+}
+.player-hand-container {
+	grid-column: 4/6;
+	grid-row: 9/12;
+	text-align: center;
+	background-color: beige;
+}
+.player-hit-hand-container {
+	grid-column: 6/9;
+	grid-row: 9/12;
+	background-color: dodgerblue;
+	text-align: center;
+}
+.card-deck-container {
+	grid-column: 9/10;
+	grid-row: 6/9;
+	background-color: greenyellow;
+}
+.player-options-container {
+	grid-column: 3/4;
+	grid-row: 9/12;
+	background-color: coral;
+}
 .playing-card {
 	background: transparent;
-	width: 240px;
-	height: 340px;
-	display: inline-block;
+	width: 150px;
+	height: 200px;
+	/* display: inline-block; */
 	margin: 10px;
 	perspective: 1000px;
 }
@@ -25,11 +60,9 @@ body {
 }
 
 .deal-card {
-	transform: translate(500px, 500px) rotateY(-180deg);
+	transform: rotateY(-180deg);
+	/* transform: translate(50px, -50px) rotateY(-180deg); */
 }
-
-/* .playing-card:hover .flip-card {
-} */
 
 .front-side,
 .back-side {
@@ -52,17 +85,5 @@ body {
 }
 
 .general-btn {
-	position: absolute;
-	top: 30px;
-	right: 30px;
 	padding: 20px;
-}
-
-.player-hand {
-	width: 100px;
-	height: 100px;
-	background-color: bisque;
-	position: absolute;
-	top: 500px;
-	left: 1000px;
 }
