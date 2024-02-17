@@ -4,13 +4,16 @@ import App from "./App";
 import { GameProvider } from "./context/game";
 import "./index.css";
 import { PlayerProvider } from "./context/player";
+import { DealerProvider } from "./context/dealer";
 
 // biome-ignore lint/style/noNonNullAssertion: <explanation>
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
 		<GameProvider>
 			<PlayerProvider>
-				<App />
+				<DealerProvider>
+					<App />
+				</DealerProvider>
 			</PlayerProvider>
 		</GameProvider>
 	</React.StrictMode>,

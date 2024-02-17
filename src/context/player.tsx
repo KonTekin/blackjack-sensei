@@ -1,15 +1,6 @@
-import {
-	createContext,
-	Dispatch,
-	ReactNode,
-	SetStateAction,
-	useState,
-} from "react";
-import { blankHand, ICard } from "./game";
+import { createContext, Dispatch, SetStateAction, useState } from "react";
+import { blankHand, ICard, Props } from "./game";
 
-interface Props {
-	children?: ReactNode;
-}
 interface IPlayerContext {
 	playerHand: ICard[];
 	isMakingBet: boolean;

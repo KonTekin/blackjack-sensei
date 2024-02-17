@@ -7,7 +7,7 @@ import {
 } from "react";
 import { Deck } from "../deck-of-cards";
 
-interface Props {
+export interface Props {
 	children?: ReactNode;
 }
 
@@ -23,41 +23,40 @@ export const blankHand: ICard = {
 interface IGameContext {
 	gameDeck: ICard[];
 	currentPosOfGameDeck: number;
-	dealerHand: ICard[];
 	playerBet: number;
+	isPlayerTurn: boolean;
 	setGameDeck: Dispatch<SetStateAction<ICard[]>>;
 	setCurrentPosOfGameDeck: Dispatch<SetStateAction<number>>;
-	setDealerHand: Dispatch<SetStateAction<ICard[]>>;
 	setPlayerBet: Dispatch<SetStateAction<number>>;
+	setIsPlayerTurn: Dispatch<SetStateAction<boolean>>;
 }
 
 export const GameContext = createContext<IGameContext>({
 	gameDeck: [],
 	currentPosOfGameDeck: 0,
-	dealerHand: [],
 	playerBet: 0,
+	isPlayerTurn: false,
 	setGameDeck: () => {},
 	setCurrentPosOfGameDeck: () => {},
-	setDealerHand: () => {},
 	setPlayerBet: () => {},
+	setIsPlayerTurn: () => {},
 });
 
 export const GameProvider = ({ children }: Props) => {
 	const [gameDeck, setGameDeck] = useState(Deck);
 	const [currentPosOfGameDeck, setCurrentPosOfGameDeck] = useState(0);
-	const [dealerHand, setDealerHand] = useState([blankHand]);
 	const [playerBet, setPlayerBet] = useState(0);
+	const [isPlayerTurn, setIsPlayerTurn] = useState(false);
 
 	const value = {
 		gameDeck,
 		currentPosOfGameDeck,
-		dealerHand,
 		playerBet,
-		setDealerHand,
+		isPlayerTurn,
 		setGameDeck,
 		setCurrentPosOfGameDeck,
 		setPlayerBet,
-		
+		setIsPlayerTurn,
 	};
 
 	return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
