@@ -1,14 +1,29 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { GameContext, ICard } from "./context/game";
+import { PlayerContext } from "./context/player";
 import "./App.css";
 
 function App() {
 	const [isFlipped] = useState(false);
-
 	const game = useContext(GameContext);
+	const player = useContext(PlayerContext);
+
+	useEffect(() => {
+		shuffleGameDeck();
+	}, []);
+	const shuffleGameDeck = () => {
+		for (let i = game.gameDeck.length - 1; i > 0; i--) {
+			// Generate random number
+			const j = Math.floor(Math.random() * (i + 1));
+
+			const temp = game.gameDeck[i];
+			game.gameDeck[i] = game.gameDeck[j];
+			game.gameDeck[j] = temp;
+		}
+	};
 	const increaseBet = () => {
 		game.setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet < game.playerBalance
+			return prevPlayerBet < player.playerBalance
 				? prevPlayerBet + 5
 				: prevPlayerBet;
 		});
@@ -32,40 +47,66 @@ function App() {
 			}
 		}
 		game.setCurrentPosOfGameDeck(end);
-		game.setPlayerHand(pHand);
+		player.setPlayerHand(pHand);
 		game.setDealerHand(dHand);
 	};
 	const handleBetAction = () => {
 		dealInitialHands();
-
-		console.log(`Game Dexk position: ${game.currentPosOfGameDeck}\n`);
-		console.log(`Dealer Hand: ${game.dealerHand}\n`);
-		console.log(`Player Hand: ${game.playerHand}`);
 	};
+
 	return (
 		<div className="app-container">
-			<div className="dealer-hand-container">Dealer hand</div>
+			<div className="dealer-hand-container">
+				{game.dealerHand[0].value !== 0 &&
+					game.dealerHand.map(({ value, suit }) => {
+						return (
+							<div className="playing-card">
+								<div
+									className={isFlipped ? "flip-card deal-card" : "flip-card"}
+								>
+									<div className="front-side">
+										{`${value} `}
+										{suit}
+									</div>
+									<div className="back-side">
+										{/* <img src="src/assets/backside_card.png" alt="" /> */}
+										{`${value} `}
+										{suit}
+									</div>
+								</div>
+							</div>
+						);
+					})}
+			</div>
 			<div className="player-hand-container">
-				{game.playerHand[0].value !== 0 && (
-					<div className="playing-card">
-						<div className={isFlipped ? "flip-card deal-card" : "flip-card"}>
-							<div className="front-side">
-								<img src="src/assets/ace_clubs.png" alt="" />
+				{player.playerHand[0].value !== 0 &&
+					player.playerHand.map(({ value, suit }) => {
+						return (
+							<div className="playing-card">
+								<div
+									className={isFlipped ? "flip-card deal-card" : "flip-card"}
+								>
+									<div className="front-side">
+										{`${value} `}
+										{suit}
+									</div>
+									<div className="back-side">
+										{/* <img src="src/assets/backside_card.png" alt="" /> */}
+										{`${value} `}
+										{suit}
+									</div>
+								</div>
 							</div>
-							<div className="back-side">
-								<img src="src/assets/backside_card.png" alt="" />
-							</div>
-						</div>
-					</div>
-				)}
+						);
+					})}
 			</div>
 			<div className="player-hit-hand-container">hit cards</div>
 			<div className="card-deck-container">Deck of Cards</div>
 			<div className="player-options-container">
-				{game.isMakingBet && (
+				{player.isMakingBet && (
 					<>
 						<div className="bet-actions">
-							<div>Current Balance: {game.playerBalance}</div>
+							<div>Current Balance: {player.playerBalance}</div>
 							<button type="button" onClick={increaseBet}>
 								increase
 							</button>
