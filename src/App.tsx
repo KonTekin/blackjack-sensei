@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { GameContext, ICard } from "./context/game";
+import { GameContext, ICard, blankHand } from "./context/game";
 import { PlayerContext } from "./context/player";
 import "./App.css";
 import { DealerContext } from "./context/dealer";
@@ -9,10 +9,13 @@ function App() {
 	const game = useContext(GameContext);
 	const player = useContext(PlayerContext);
 	const dealer = useContext(DealerContext);
+	const [dealerHandValue, setDealerHandValue] = useState(0);
+	const [playerHandValue, setPlayerHandValue] = useState(0);
 
 	useEffect(() => {
 		shuffleGameDeck();
 	}, []);
+
 	const shuffleGameDeck = () => {
 		for (let i = game.gameDeck.length - 1; i > 0; i--) {
 			// Generate random number
@@ -44,8 +47,14 @@ function App() {
 		for (let i = start; i < end; i++) {
 			if (i % 2 === 0) {
 				pHand.push(game.gameDeck[i]);
+				setPlayerHandValue((prev) => {
+					return prev + game.gameDeck[i].value;
+				});
 			} else {
 				dHand.push(game.gameDeck[i]);
+				setDealerHandValue((prev) => {
+					return prev + game.gameDeck[i].value;
+				});
 			}
 		}
 		game.setCurrentPosOfGameDeck(end);
@@ -66,51 +75,120 @@ function App() {
 
 	const handleHitAction = () => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
-
 		player.setPlayerHand([...player.playerHand, nextCard]);
 		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
+
+		setPlayerHandValue((prev) => {
+			return prev + nextCard.value;
+		});
+	};
+
+	const handleStayAction = () => {
+		// game.setIsPlayerTurn(false);
+		// let dHandValue = 0;
+		// // let pHandValue = 0;
+
+		// for (const card of dealer.dealerHand) {
+		// 	dHandValue += card.value;
+		// }
+
+		// setDealerHandValue((prev) => {
+		// 	return prev + dHandValue;
+		// });
+		// while () {
+		// 	console.log("hit while loop");
+		let currentValue = dealerHandValue;
+
+		// }
+
+		while (currentValue < 17) {
+			console.log(currentValue);
+			currentValue = dealCardForDealer(currentValue);
+		}
+
+		setDealerHandValue(currentValue);
+
+		if (dealerHandValue > 21) {
+			alert("Dealer bust");
+		} else if (dealerHandValue >= 17 && dealerHandValue <= 21) {
+			// evaluate player and dealer hand value to see who wins
+			if (dealerHandValue > playerHandValue) {
+				alert("Dealer wins");
+			} else {
+				alert("player wins");
+				player.setPlayerBalance((prevPlayerBalance) => {
+					return prevPlayerBalance + game.playerBet;
+				});
+			}
+			//reset state for new round
+		}
+		resetRound();
+	};
+
+	const dealCardForDealer = (currentValue: number): number => {
+		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
+		dealer.setDealerHand([...dealer.dealerHand, nextCard]);
+		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
+		return nextCard.value + currentValue;
+	};
+
+	const resetRound = () => {
+		game.setIsPlayerTurn(true);
+		game.setPlayerBet(0);
+		player.setIsMakingBet(true);
+		player.setPlayerHand([blankHand]);
+		dealer.setDealerHand([blankHand]);
+	};
+
+	const calcCardValue = (value: number): number => {
+		if (value >= 10) return 10;
+		return value;
 	};
 
 	return (
 		<div className="app-container">
 			<div className="dealer-hand-container">
 				{dealer.dealerHand[0].value !== 0 &&
-					dealer.dealerHand.map(({ value, suit }) => {
+					dealer.dealerHand.map(({ value, suit }, index) => {
 						return (
-							<div className="playing-card">
-								<div
-									className={isFlipped ? "flip-card deal-card" : "flip-card"}
-								>
-									<div className="front-side">
-										{`${value} `}
-										{suit}
-									</div>
-									<div className="back-side">
-										{/* <img src="src/assets/backside_card.png" alt="" /> */}
-										{`${value} `}
-										{suit}
+							<>
+								{/* biome-ignore lint/suspicious/noArrayIndexKey: <explanation> */}
+								<div key={index} className="playing-card">
+									<div
+										className={isFlipped ? "flip-card deal-card" : "flip-card"}
+									>
+										<div className="front-side">
+											{value === 1 ? "Ace " : `${calcCardValue(value)} `}
+											{suit}
+										</div>
+										<div className="back-side">
+											{/* <img src="src/assets/backside_card.png" alt="" /> */}
+											{value === 1 ? "Ace " : `${calcCardValue(value)} `}
+											{suit}
+										</div>
 									</div>
 								</div>
-							</div>
+								<div>{dealerHandValue}</div>
+							</>
 						);
 					})}
 			</div>
 			<div className="player-hand-container">
 				{player.playerHand[0].value !== 0 &&
-					player.playerHand.map(({ value, suit }, key) => {
+					player.playerHand.map(({ value, suit }, index) => {
 						return (
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-							<div key={key} className="playing-card">
+							<div key={index} className="playing-card">
 								<div
 									className={isFlipped ? "flip-card deal-card" : "flip-card"}
 								>
 									<div className="front-side">
-										{`${value} `}
+										{value === 1 ? "Ace " : `${calcCardValue(value)} `}
 										{suit}
 									</div>
 									<div className="back-side">
 										{/* <img src="src/assets/backside_card.png" alt="" /> */}
-										{`${value} `}
+										{value === 1 ? "Ace " : `${calcCardValue(value)} `}
 										{suit}
 									</div>
 								</div>
@@ -120,10 +198,12 @@ function App() {
 			</div>
 			<div className="card-deck-container">Deck of Cards</div>
 			<div className="player-options-container">
+				<div>Current Balance: {player.playerBalance}</div>
+				<div>Player hand value: {playerHandValue}</div>
+
 				{player.isMakingBet && (
 					<>
 						<div className="bet-actions">
-							<div>Current Balance: {player.playerBalance}</div>
 							<button type="button" onClick={increaseBet}>
 								increase
 							</button>
@@ -150,6 +230,13 @@ function App() {
 								onClick={handleHitAction}
 							>
 								Hit
+							</button>
+							<button
+								type="button"
+								className="general-btn"
+								onClick={handleStayAction}
+							>
+								Stay
 							</button>
 						</div>
 					</>
