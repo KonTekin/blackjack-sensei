@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { GameContext, ICard, blankHand } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
+import { toast } from "react-toastify";
 
 export const PlayerOptions = () => {
 	const game = useContext(GameContext);
@@ -13,13 +14,14 @@ export const PlayerOptions = () => {
 		setPlayerHand,
 		setPlayerHandValue,
 		playerBalance,
+		playerHandValue,
 		playerBet,
 		playerHand,
-		playerHandValue,
 		isMakingBet,
 		isPlayerTurn,
 	} = useContext(PlayerContext);
-	const dealer = useContext(DealerContext);
+	const { setDealerHand, setDealerHandValue, dealerHandValue } =
+		useContext(DealerContext);
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -56,53 +58,91 @@ export const PlayerOptions = () => {
 				});
 			} else {
 				dHand.push(game.gameDeck[i]);
-				dealer.setDealerHandValue((prev) => {
+				setDealerHandValue((prev) => {
 					return prev + game.gameDeck[i].value;
 				});
 			}
 		}
 		game.setCurrentPosOfGameDeck(end);
 		setPlayerHand(pHand);
-		dealer.setDealerHand(dHand);
+		setDealerHand(dHand);
 	};
-	const dealCardForDealer = async () => {
+	const dealCardForDealer = (): number => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
-		dealer.setDealerHand((prevHand) => {
+		setDealerHand((prevHand) => {
 			return [...prevHand, nextCard];
 		});
-		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
-		dealer.setDealerHandValue((prev) => {
-			return prev + nextCard.value;
+		game.setCurrentPosOfGameDeck((prev) => {
+			return prev + 1;
 		});
+
+		return dealerHandValue + nextCard.value;
 	};
 
 	const resetRound = () => {
 		setIsPlayerTurn(false);
 		setPlayerBet(0);
+		setPlayerHandValue(0);
+		setDealerHandValue(0);
 		setIsMakingBet(true);
 		setPlayerHand([blankHand]);
-		dealer.setDealerHand([blankHand]);
+		setDealerHand([blankHand]);
 	};
 
 	const handleStayAction = async () => {
-		console.log(dealer.dealerHandValue);
-		while (dealer.dealerHandValue < 17) {
-			await dealCardForDealer();
+		let handValue = dealerHandValue;
+
+		while (handValue < 17) {
+			handValue = dealCardForDealer();
 			await new Promise((resolve) => setTimeout(resolve, 1500));
 		}
-		if (dealer.dealerHandValue > 21) {
-			alert("Dealer bust");
-		} else if (dealer.dealerHandValue >= 17 && dealer.dealerHandValue <= 21) {
+
+		setDealerHandValue((prev) => {
+			return prev + handValue;
+		});
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		if (handValue > 21) {
+			toast.info("Dealer Busted", {
+				position: "top-center",
+				autoClose: 2000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "light",
+			});
+			setPlayerBalance((prevPlayerBalance) => {
+				return prevPlayerBalance + playerBet;
+			});
+		} else if (handValue >= 17 && handValue <= 21) {
 			// evaluate player and dealer hand value to see who wins
-			if (dealer.dealerHandValue > playerHandValue) {
-				alert("Dealer wins");
+			if (handValue > playerHandValue) {
+				toast.info("Dealer Won", {
+					position: "top-center",
+					autoClose: 2000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "light",
+				});
 			} else {
-				alert("player wins");
+				toast.info("Player Won", {
+					position: "top-center",
+					autoClose: 2000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "light",
+				});
 				setPlayerBalance((prevPlayerBalance) => {
 					return prevPlayerBalance + playerBet;
 				});
 			}
-			//reset state for new round
 		}
 		resetRound();
 	};
@@ -160,13 +200,6 @@ export const PlayerOptions = () => {
 					</div>
 				</>
 			)}
-			{/* <button
-        type="button"
-        className="general-btn"
-        onClick={() => setIsFlipped(!isFlipped)}
-    >
-        Flip
-    </button> */}
 		</div>
 	);
 };

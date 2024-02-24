@@ -1,10 +1,12 @@
 import "./App.css";
+import "react-toastify/dist/ReactToastify.css";
 import { useContext, useEffect } from "react";
 import { GameContext } from "./context/game";
 import { PlayerHand } from "./components/playerHand";
 import { PlayerHandInfo } from "./components/playerHandInfo";
 import { PlayerOptions } from "./components/playerOptions";
 import { DealerHand } from "./components/dealerHand";
+import { ToastContainer } from "react-toastify";
 
 function App() {
 	const game = useContext(GameContext);
@@ -25,6 +27,18 @@ function App() {
 	};
 	return (
 		<div className="app-container">
+			<ToastContainer
+				position="top-center"
+				autoClose={2000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+				theme="light"
+			/>
 			<DealerHand />
 			<PlayerHand />
 			<PlayerHandInfo />
