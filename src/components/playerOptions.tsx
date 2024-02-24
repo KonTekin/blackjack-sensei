@@ -21,16 +21,6 @@ export const PlayerOptions = () => {
 	} = useContext(PlayerContext);
 	const dealer = useContext(DealerContext);
 
-	const increaseBet = () => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
-		});
-	};
-	const decreaseBet = (amount: number) => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
-		});
-	};
 	const handleBetAction = () => {
 		if (playerBet > 0) {
 			dealInitialHands();
@@ -115,6 +105,17 @@ export const PlayerOptions = () => {
 			//reset state for new round
 		}
 		resetRound();
+	};
+
+	const increaseBet = () => {
+		setPlayerBet((prevPlayerBet) => {
+			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
+		});
+	};
+	const decreaseBet = (amount: number) => {
+		setPlayerBet((prevPlayerBet) => {
+			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
+		});
 	};
 
 	return (
