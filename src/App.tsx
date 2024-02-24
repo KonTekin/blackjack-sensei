@@ -4,6 +4,8 @@ import "./App.css";
 import { DealerContext } from "./context/dealer";
 import { PlayerHand } from "./components/playerHand";
 import { calcCardValue } from "./utils/game_utils";
+import { PlayerHandInfo } from "./components/playerHandInfo";
+import { PlayerOptions } from "./components/playerOptions";
 
 function App() {
 	const [isFlipped] = useState(false);
@@ -54,6 +56,8 @@ function App() {
 					})}
 			</div>
 			<PlayerHand />
+			<PlayerHandInfo />
+			<PlayerOptions />
 			<div className="card-deck-container">Deck of Cards</div>
 		</div>
 	);
