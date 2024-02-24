@@ -3,6 +3,8 @@ import { GameContext, ICard, blankHand } from "./context/game";
 import { PlayerContext } from "./context/player";
 import "./App.css";
 import { DealerContext } from "./context/dealer";
+import { PlayerHand } from "./components/playerHand";
+import { calcCardValue } from "./utils/game_utils";
 
 function App() {
 	const [isFlipped] = useState(false);
@@ -83,30 +85,13 @@ function App() {
 		});
 	};
 
-	const handleStayAction = () => {
-		// game.setIsPlayerTurn(false);
-		// let dHandValue = 0;
-		// // let pHandValue = 0;
+	const handleStayAction = async () => {
+		console.log(dealerHandValue);
 
-		// for (const card of dealer.dealerHand) {
-		// 	dHandValue += card.value;
-		// }
-
-		// setDealerHandValue((prev) => {
-		// 	return prev + dHandValue;
-		// });
-		// while () {
-		// 	console.log("hit while loop");
-		let currentValue = dealerHandValue;
-
-		// }
-
-		while (currentValue < 17) {
-			console.log(currentValue);
-			currentValue = dealCardForDealer(currentValue);
+		while (dealerHandValue < 17) {
+			await dealCardForDealer();
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 		}
-
-		setDealerHandValue(currentValue);
 
 		if (dealerHandValue > 21) {
 			alert("Dealer bust");
@@ -125,24 +110,23 @@ function App() {
 		resetRound();
 	};
 
-	const dealCardForDealer = (currentValue: number): number => {
+	const dealCardForDealer = async () => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
-		dealer.setDealerHand([...dealer.dealerHand, nextCard]);
+		dealer.setDealerHand((prevHand) => {
+			return [...prevHand, nextCard];
+		});
 		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
-		return nextCard.value + currentValue;
+		setDealerHandValue((prev) => {
+			return prev + nextCard.value;
+		});
 	};
 
 	const resetRound = () => {
-		game.setIsPlayerTurn(true);
+		game.setIsPlayerTurn(false);
 		game.setPlayerBet(0);
 		player.setIsMakingBet(true);
 		player.setPlayerHand([blankHand]);
 		dealer.setDealerHand([blankHand]);
-	};
-
-	const calcCardValue = (value: number): number => {
-		if (value >= 10) return 10;
-		return value;
 	};
 
 	return (
@@ -173,29 +157,7 @@ function App() {
 						);
 					})}
 			</div>
-			<div className="player-hand-container">
-				{player.playerHand[0].value !== 0 &&
-					player.playerHand.map(({ value, suit }, index) => {
-						return (
-							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-							<div key={index} className="playing-card">
-								<div
-									className={isFlipped ? "flip-card deal-card" : "flip-card"}
-								>
-									<div className="front-side">
-										{value === 1 ? "Ace " : `${calcCardValue(value)} `}
-										{suit}
-									</div>
-									<div className="back-side">
-										{/* <img src="src/assets/backside_card.png" alt="" /> */}
-										{value === 1 ? "Ace " : `${calcCardValue(value)} `}
-										{suit}
-									</div>
-								</div>
-							</div>
-						);
-					})}
-			</div>
+			<PlayerHand />
 			<div className="card-deck-container">Deck of Cards</div>
 			<div className="player-options-container">
 				<div>Current Balance: {player.playerBalance}</div>
