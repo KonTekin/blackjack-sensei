@@ -5,39 +5,50 @@ import { DealerContext } from "../context/dealer";
 
 export const PlayerOptions = () => {
 	const game = useContext(GameContext);
-	const player = useContext(PlayerContext);
+	const {
+		setPlayerBet,
+		setIsPlayerTurn,
+		setPlayerBalance,
+		setIsMakingBet,
+		setPlayerHand,
+		setPlayerHandValue,
+		playerBalance,
+		playerBet,
+		playerHand,
+		playerHandValue,
+		isMakingBet,
+		isPlayerTurn,
+	} = useContext(PlayerContext);
 	const dealer = useContext(DealerContext);
 
 	const increaseBet = () => {
-		game.setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet < player.playerBalance
-				? prevPlayerBet + 5
-				: prevPlayerBet;
+		setPlayerBet((prevPlayerBet) => {
+			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
 		});
 	};
 	const decreaseBet = (amount: number) => {
-		game.setPlayerBet((prevPlayerBet) => {
+		setPlayerBet((prevPlayerBet) => {
 			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
 		});
 	};
 	const handleBetAction = () => {
-		if (game.playerBet > 0) {
+		if (playerBet > 0) {
 			dealInitialHands();
-			player.setPlayerBalance((prevPlayerBalance) => {
-				return prevPlayerBalance - game.playerBet;
+			setPlayerBalance((prevPlayerBalance) => {
+				return prevPlayerBalance - playerBet;
 			});
-			game.setPlayerBet(0);
-			game.setIsPlayerTurn(true);
-			player.setIsMakingBet(false);
+			setPlayerBet(0);
+			setIsPlayerTurn(true);
+			setIsMakingBet(false);
 		}
 	};
 
 	const handleHitAction = () => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
-		player.setPlayerHand([...player.playerHand, nextCard]);
+		setPlayerHand([...playerHand, nextCard]);
 		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
 
-		player.setPlayerHandValue((prev) => {
+		setPlayerHandValue((prev) => {
 			return prev + nextCard.value;
 		});
 	};
@@ -50,7 +61,7 @@ export const PlayerOptions = () => {
 		for (let i = start; i < end; i++) {
 			if (i % 2 === 0) {
 				pHand.push(game.gameDeck[i]);
-				player.setPlayerHandValue((prev) => {
+				setPlayerHandValue((prev) => {
 					return prev + game.gameDeck[i].value;
 				});
 			} else {
@@ -61,7 +72,7 @@ export const PlayerOptions = () => {
 			}
 		}
 		game.setCurrentPosOfGameDeck(end);
-		player.setPlayerHand(pHand);
+		setPlayerHand(pHand);
 		dealer.setDealerHand(dHand);
 	};
 	const dealCardForDealer = async () => {
@@ -76,10 +87,10 @@ export const PlayerOptions = () => {
 	};
 
 	const resetRound = () => {
-		game.setIsPlayerTurn(false);
-		game.setPlayerBet(0);
-		player.setIsMakingBet(true);
-		player.setPlayerHand([blankHand]);
+		setIsPlayerTurn(false);
+		setPlayerBet(0);
+		setIsMakingBet(true);
+		setPlayerHand([blankHand]);
 		dealer.setDealerHand([blankHand]);
 	};
 
@@ -93,12 +104,12 @@ export const PlayerOptions = () => {
 			alert("Dealer bust");
 		} else if (dealer.dealerHandValue >= 17 && dealer.dealerHandValue <= 21) {
 			// evaluate player and dealer hand value to see who wins
-			if (dealer.dealerHandValue > player.playerHandValue) {
+			if (dealer.dealerHandValue > playerHandValue) {
 				alert("Dealer wins");
 			} else {
 				alert("player wins");
-				player.setPlayerBalance((prevPlayerBalance) => {
-					return prevPlayerBalance + game.playerBet;
+				setPlayerBalance((prevPlayerBalance) => {
+					return prevPlayerBalance + playerBet;
 				});
 			}
 			//reset state for new round
@@ -108,13 +119,13 @@ export const PlayerOptions = () => {
 
 	return (
 		<div className="player-options-container">
-			{player.isMakingBet && (
+			{isMakingBet && (
 				<>
 					<div className="bet-actions">
 						<button type="button" onClick={increaseBet}>
 							increase
 						</button>
-						<div>{game.playerBet}</div>
+						<div>{playerBet}</div>
 						<button type="button" onClick={() => decreaseBet(5)}>
 							decrease
 						</button>
@@ -128,7 +139,7 @@ export const PlayerOptions = () => {
 					</button>
 				</>
 			)}
-			{game.isPlayerTurn && (
+			{isPlayerTurn && (
 				<>
 					<div>
 						<button
