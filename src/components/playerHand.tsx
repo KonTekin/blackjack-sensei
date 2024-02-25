@@ -1,14 +1,18 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { PlayerContext } from "../context/player";
-import { calcCardValue } from "../utils/game_utils";
+import { calcCardValue, calculateHandValue } from "../utils/game_utils";
 
 export const PlayerHand = () => {
-	const player = useContext(PlayerContext);
+	const { playerHand, setPlayerHandValue } = useContext(PlayerContext);
+	useEffect(() => {
+		const totalHandValue = calculateHandValue(playerHand);
+		setPlayerHandValue(totalHandValue);
+	}, [playerHand, setPlayerHandValue]);
 	return (
 		<>
 			<div className="player-hand-container">
-				{player.playerHand[0].value !== 0 &&
-					player.playerHand.map(({ value, suit }, index) => {
+				{playerHand[0].value !== 0 &&
+					playerHand.map(({ value, suit }, index) => {
 						return (
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							<div key={index} className="playing-card">

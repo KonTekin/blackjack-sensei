@@ -40,9 +40,9 @@ export const PlayerOptions = () => {
 		setPlayerHand([...playerHand, nextCard]);
 		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
 
-		setPlayerHandValue((prev) => {
-			return prev + nextCard.value;
-		});
+		// setPlayerHandValue((prev) => {
+		// 	return prev + calcCardValue(nextCard.value);
+		// });
 	};
 	const dealInitialHands = () => {
 		const start = game.currentPosOfGameDeck;
@@ -53,14 +53,8 @@ export const PlayerOptions = () => {
 		for (let i = start; i < end; i++) {
 			if (i % 2 === 0) {
 				pHand.push(game.gameDeck[i]);
-				setPlayerHandValue((prev) => {
-					return prev + game.gameDeck[i].value;
-				});
 			} else {
 				dHand.push(game.gameDeck[i]);
-				setDealerHandValue((prev) => {
-					return prev + game.gameDeck[i].value;
-				});
 			}
 		}
 		game.setCurrentPosOfGameDeck(end);
@@ -93,14 +87,11 @@ export const PlayerOptions = () => {
 		let handValue = dealerHandValue;
 
 		while (handValue < 17) {
+			console.log(handValue);
 			handValue = dealCardForDealer();
 			await new Promise((resolve) => setTimeout(resolve, 1500));
 		}
 
-		setDealerHandValue((prev) => {
-			return prev + handValue;
-		});
-		await new Promise((resolve) => setTimeout(resolve, 500));
 		if (handValue > 21) {
 			toast.info("Dealer Busted", {
 				position: "top-center",
@@ -112,12 +103,16 @@ export const PlayerOptions = () => {
 				progress: undefined,
 				theme: "light",
 			});
+			console.log("player won");
+
 			setPlayerBalance((prevPlayerBalance) => {
 				return prevPlayerBalance + playerBet;
 			});
 		} else if (handValue >= 17 && handValue <= 21) {
 			// evaluate player and dealer hand value to see who wins
 			if (handValue > playerHandValue) {
+				console.log("player dealer won");
+
 				toast.info("Dealer Won", {
 					position: "top-center",
 					autoClose: 2000,
@@ -129,6 +124,7 @@ export const PlayerOptions = () => {
 					theme: "light",
 				});
 			} else {
+				console.log("player won");
 				toast.info("Player Won", {
 					position: "top-center",
 					autoClose: 2000,
