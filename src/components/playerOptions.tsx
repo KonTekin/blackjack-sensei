@@ -29,7 +29,6 @@ export const PlayerOptions = () => {
 			setPlayerBalance((prevPlayerBalance) => {
 				return prevPlayerBalance - playerBet;
 			});
-			setPlayerBet(0);
 			setIsPlayerTurn(true);
 			setIsMakingBet(false);
 		}
@@ -49,7 +48,7 @@ export const PlayerOptions = () => {
 			});
 			resetRound();
 		}
-	});
+	}, [playerHandValue]);
 
 	const handleHitAction = () => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
@@ -115,16 +114,12 @@ export const PlayerOptions = () => {
 				progress: undefined,
 				theme: "light",
 			});
-			console.log("player won");
-
 			setPlayerBalance((prevPlayerBalance) => {
-				return prevPlayerBalance + playerBet;
+				return prevPlayerBalance + playerBet + playerBet;
 			});
 		} else if (handValue >= 17 && handValue <= 21) {
 			// evaluate player and dealer hand value to see who wins
 			if (handValue > playerHandValue) {
-				console.log("player dealer won");
-
 				toast.info("Dealer Won", {
 					position: "top-center",
 					autoClose: 2000,
@@ -136,7 +131,6 @@ export const PlayerOptions = () => {
 					theme: "light",
 				});
 			} else {
-				console.log("player won");
 				toast.info("Player Won", {
 					position: "top-center",
 					autoClose: 2000,
@@ -148,7 +142,7 @@ export const PlayerOptions = () => {
 					theme: "light",
 				});
 				setPlayerBalance((prevPlayerBalance) => {
-					return prevPlayerBalance + playerBet;
+					return prevPlayerBalance + playerBet + playerBet;
 				});
 			}
 		}
