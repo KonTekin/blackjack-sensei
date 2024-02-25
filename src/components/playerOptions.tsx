@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { GameContext, ICard, blankHand } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
@@ -35,14 +35,26 @@ export const PlayerOptions = () => {
 		}
 	};
 
+	useEffect(() => {
+		if (playerHandValue > 21) {
+			toast.info("Player Lost", {
+				position: "top-center",
+				autoClose: 2000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "light",
+			});
+			resetRound();
+		}
+	});
+
 	const handleHitAction = () => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
 		setPlayerHand([...playerHand, nextCard]);
 		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
-
-		// setPlayerHandValue((prev) => {
-		// 	return prev + calcCardValue(nextCard.value);
-		// });
 	};
 	const dealInitialHands = () => {
 		const start = game.currentPosOfGameDeck;
@@ -93,7 +105,7 @@ export const PlayerOptions = () => {
 		}
 
 		if (handValue > 21) {
-			toast.info("Dealer Busted", {
+			toast.info("Dealer Lost", {
 				position: "top-center",
 				autoClose: 2000,
 				hideProgressBar: false,
