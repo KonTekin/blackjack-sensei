@@ -6,54 +6,55 @@ body {
 	height: 100vh;
 	overflow: hidden;
 }
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  appearance: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  outline: none;
+  /* Additional styles to fit your design */
+}
 
 .app-container {
 	width: 100vw;
 	height: 100vh;
 	display: grid;
-	grid-template-columns: repeat(10, 1fr);
+	grid-template-columns: repeat(14, 1fr);
 	grid-template-rows: repeat(12, 1fr);
 
 }
 .dealer-hand-container {
-	grid-column: 5/9;
+	grid-column: 6/12;
 	grid-row: 2/5;
 	display: flex;
 	background-color: aquamarine;
 	text-align: center;
 }
 .player-hand-container {
-	grid-column: 4/9;
+	grid-column: 6/12;
 	grid-row: 9/12;
 	display: flex;
 	background-color: beige;
 }
-.player-hit-hand-container {
-	grid-column: 6/9;
-	grid-row: 9/12;
-	background-color: dodgerblue;
-	text-align: center;
-}
+
 .card-deck-container {
-	grid-column: 9/10;
+	grid-column: 12/14;
 	grid-row: 6/9;
 	background-color: greenyellow;
 }
-.player-options-container {
-	grid-column: 3/4;
-	grid-row: 9/12;
-	background-color: coral;
-}
-.player-info-container {
-	grid-column: 2/3;
-	grid-row: 9/12;
-	background-color: aqua;
-}
+
+
 .playing-card {
 	background: transparent;
 	width: 150px;
 	height: 200px;
-	/* display: inline-block; */
 	margin: 10px;
 	perspective: 1000px;
 }

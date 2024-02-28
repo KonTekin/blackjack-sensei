@@ -1,0 +1,35 @@
+.container {
+	grid-column: 4/6;
+	grid-row: 9/12;
+    display: flex;
+    flex-direction: column;
+}
+.inner{
+    display: flex;
+    justify-content: space-around;
+}
+.actions {
+    display: flex;
+    gap: 10px;
+}
+.arrow {
+    background-color: #e1e1e1;
+    padding: 15px 25PX;
+    border-radius: 10px;
+}
+.amount{
+    color: #e1e1e1;
+    display: flex;
+    align-self: center;
+    margin-right: 20px;
+    font-size: 20px;
+}
+.bet{
+    background-color: rgb(48, 46, 46);
+    border-radius: 5px;
+    margin: 10px 0;
+    padding: 20px 0;
+    width: 90%;
+    color: #e1e1e1;
+    align-self: center;
+}

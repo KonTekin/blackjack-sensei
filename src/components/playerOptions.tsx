@@ -3,6 +3,7 @@ import { GameContext, ICard, blankHand } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import { toast } from "react-toastify";
+import styles from "../styles/playerOptions.module.css";
 
 export const PlayerOptions = () => {
 	const game = useContext(GameContext);
@@ -161,21 +162,31 @@ export const PlayerOptions = () => {
 	};
 
 	return (
-		<div className="player-options-container">
+		<div className={styles.container}>
 			{isMakingBet && (
 				<>
-					<div className="bet-actions">
-						<button type="button" onClick={increaseBet}>
-							increase
-						</button>
-						<div>{playerBet}</div>
-						<button type="button" onClick={() => decreaseBet(5)}>
-							decrease
-						</button>
+					<div className={styles.inner}>
+						<div className={styles.actions}>
+							<button
+								className={styles.arrow}
+								type="button"
+								onClick={increaseBet}
+							>
+								+
+							</button>
+							<button
+								className={styles.arrow}
+								type="button"
+								onClick={() => decreaseBet(5)}
+							>
+								-
+							</button>
+						</div>
+						<div className={styles.amount}>{playerBet}</div>
 					</div>
 					<button
 						type="button"
-						className="general-btn"
+						className={styles.bet}
 						onClick={handleBetAction}
 					>
 						Place Bet
