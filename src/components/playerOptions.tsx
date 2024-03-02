@@ -36,6 +36,19 @@ export const PlayerOptions = () => {
 	};
 
 	useEffect(() => {
+		if (playerHandValue === 21) {
+			toast.info("Player won!", {
+				position: "top-center",
+				autoClose: 2000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "light",
+			});
+			resetRound();
+		}
 		if (playerHandValue > 21) {
 			toast.info("Player Lost", {
 				position: "top-center",
@@ -168,14 +181,14 @@ export const PlayerOptions = () => {
 					<div className={styles.inner}>
 						<div className={styles.actions}>
 							<button
-								className={styles.arrow}
+								className={styles.playerAction}
 								type="button"
 								onClick={increaseBet}
 							>
 								+
 							</button>
 							<button
-								className={styles.arrow}
+								className={styles.playerAction}
 								type="button"
 								onClick={() => decreaseBet(5)}
 							>
@@ -198,14 +211,14 @@ export const PlayerOptions = () => {
 					<div>
 						<button
 							type="button"
-							className="general-btn"
+							className={styles.playerAction}
 							onClick={handleHitAction}
 						>
 							Hit
 						</button>
 						<button
 							type="button"
-							className="general-btn"
+							className={styles.playerAction}
 							onClick={handleStayAction}
 						>
 							Stay

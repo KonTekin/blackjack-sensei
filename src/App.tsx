@@ -43,6 +43,7 @@ function App() {
 			<PlayerHand />
 			<PlayerHandInfo />
 			<PlayerOptions />
+
 			<div className="card-deck-container">Deck of Cards</div>
 		</div>
 	);

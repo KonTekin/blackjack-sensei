@@ -10,12 +10,13 @@
 }
 .actions {
     display: flex;
-    gap: 10px;
+
 }
-.arrow {
+.playerAction {
     background-color: #e1e1e1;
     padding: 15px 25PX;
     border-radius: 10px;
+    margin: 5px;
 }
 .amount{
     color: #e1e1e1;
