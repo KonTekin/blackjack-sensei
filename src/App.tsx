@@ -9,21 +9,23 @@ import { DealerHand } from "./components/dealerHand";
 import { ToastContainer } from "react-toastify";
 
 function App() {
-	const game = useContext(GameContext);
+	const { gameDeck } = useContext(GameContext);
 
 	useEffect(() => {
 		shuffleGameDeck();
 	}, []);
 
 	const shuffleGameDeck = () => {
-		for (let i = game.gameDeck.length - 1; i > 0; i--) {
+		for (let i = gameDeck.length - 1; i > 0; i--) {
 			// Generate random number
 			const j = Math.floor(Math.random() * (i + 1));
 
-			const temp = game.gameDeck[i];
-			game.gameDeck[i] = game.gameDeck[j];
-			game.gameDeck[j] = temp;
+			const temp = gameDeck[i];
+			gameDeck[i] = gameDeck[j];
+			gameDeck[j] = temp;
 		}
+		console.log(gameDeck.length);
+		console.log(gameDeck);
 	};
 	return (
 		<div className="app-container">

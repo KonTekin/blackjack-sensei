@@ -1,5 +1,5 @@
 import { createContext, Dispatch, SetStateAction, useState } from "react";
-import { blankHand, ICard, Props } from "./game";
+import { ICard, Props, blankHand } from "../constants";
 
 interface IPlayerContext {
 	playerHand: ICard[];

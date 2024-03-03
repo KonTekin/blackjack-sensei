@@ -21,7 +21,7 @@ export const GameContext = createContext<IGameContext>({
 });
 
 export const GameProvider = ({ children }: Props) => {
-	const [gameDeck, setGameDeck] = useState(Deck);
+	const [gameDeck, setGameDeck] = useState([...Deck, ...Deck]);
 	const [currentPosOfGameDeck, setCurrentPosOfGameDeck] = useState(0);
 	const [dealersTurnInProgress, setDealersTurnInProgress] = useState(false);
 
