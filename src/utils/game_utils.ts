@@ -1,4 +1,4 @@
-import { ICard } from "../context/game";
+import { ICard } from "../constants";
 
 export const calcCardValue = (value: number): number => {
 	if (value >= 10) return 10;

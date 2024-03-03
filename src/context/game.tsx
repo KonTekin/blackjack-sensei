@@ -1,24 +1,6 @@
-import {
-	createContext,
-	Dispatch,
-	ReactNode,
-	SetStateAction,
-	useState,
-} from "react";
+import { createContext, Dispatch, SetStateAction, useState } from "react";
 import { Deck } from "../deck-of-cards";
-
-export interface Props {
-	children?: ReactNode;
-}
-
-export interface ICard {
-	suit: string;
-	value: number;
-}
-export const blankHand: ICard = {
-	suit: "none",
-	value: 0,
-};
+import { ICard, Props } from "../constants";
 
 interface IGameContext {
 	gameDeck: ICard[];

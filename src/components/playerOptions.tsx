@@ -1,9 +1,10 @@
 import { useContext, useEffect } from "react";
-import { GameContext, ICard, blankHand } from "../context/game";
+import { GameContext } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
+import { ICard, blankHand } from "../constants";
 
 export const PlayerOptions = () => {
 	const game = useContext(GameContext);
