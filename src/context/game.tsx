@@ -23,6 +23,8 @@ export const blankHand: ICard = {
 interface IGameContext {
 	gameDeck: ICard[];
 	currentPosOfGameDeck: number;
+	dealersTurnInProgress: boolean;
+	setDealersTurnInProgress: Dispatch<SetStateAction<boolean>>;
 	setGameDeck: Dispatch<SetStateAction<ICard[]>>;
 	setCurrentPosOfGameDeck: Dispatch<SetStateAction<number>>;
 }
@@ -30,6 +32,8 @@ interface IGameContext {
 export const GameContext = createContext<IGameContext>({
 	gameDeck: [],
 	currentPosOfGameDeck: 0,
+	dealersTurnInProgress: false,
+	setDealersTurnInProgress: () => {},
 	setGameDeck: () => {},
 	setCurrentPosOfGameDeck: () => {},
 });
@@ -37,10 +41,13 @@ export const GameContext = createContext<IGameContext>({
 export const GameProvider = ({ children }: Props) => {
 	const [gameDeck, setGameDeck] = useState(Deck);
 	const [currentPosOfGameDeck, setCurrentPosOfGameDeck] = useState(0);
+	const [dealersTurnInProgress, setDealersTurnInProgress] = useState(false);
 
 	const value = {
 		gameDeck,
 		currentPosOfGameDeck,
+		dealersTurnInProgress,
+		setDealersTurnInProgress,
 		setGameDeck,
 		setCurrentPosOfGameDeck,
 	};

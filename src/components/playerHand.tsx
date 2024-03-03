@@ -1,7 +1,8 @@
 import { useContext, useEffect } from "react";
 import { PlayerContext } from "../context/player";
-import { calculateHandValue } from "../utils/game_utils";
 import { Card } from "./card";
+import { calculateHandValue } from "../utils/game_utils";
+import { nanoid } from "nanoid";
 
 export const PlayerHand = () => {
 	const { playerHand, setPlayerHandValue } = useContext(PlayerContext);
@@ -13,9 +14,10 @@ export const PlayerHand = () => {
 		<>
 			<div className="player-hand-container">
 				{playerHand[0].value !== 0 &&
-					playerHand.map(({ value, suit }, index) => {
-						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-						return <Card key={index} value={value} suit={suit} />;
+					playerHand.map(({ value, suit }) => {
+						const cardId = nanoid();
+
+						return <Card key={cardId} value={value} suit={suit} />;
 					})}
 			</div>
 		</>
