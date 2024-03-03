@@ -4,7 +4,6 @@ import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
-import { delay } from "../utils/game_utils";
 
 export const PlayerOptions = () => {
 	const game = useContext(GameContext);
@@ -22,8 +21,13 @@ export const PlayerOptions = () => {
 		isMakingBet,
 		isPlayerTurn,
 	} = useContext(PlayerContext);
-	const { setDealerHand, setDealerHandValue, dealerHandValue } =
-		useContext(DealerContext);
+	const {
+		isDealersTurn,
+		setIsDealersTurn,
+		setDealerHand,
+		setDealerHandValue,
+		dealerHandValue,
+	} = useContext(DealerContext);
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -36,6 +40,65 @@ export const PlayerOptions = () => {
 		}
 	};
 
+	const handleHitAction = () => {
+		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
+		setPlayerHand([...playerHand, nextCard]);
+		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
+	};
+	const dealInitialHands = () => {
+		const start = game.currentPosOfGameDeck;
+		const end = start + 4;
+		const pHand: ICard[] = [];
+		const dHand: ICard[] = [];
+
+		for (let i = start; i < end; i++) {
+			if (i % 2 === 0) {
+				pHand.push(game.gameDeck[i]);
+			} else {
+				dHand.push(game.gameDeck[i]);
+			}
+		}
+		game.setCurrentPosOfGameDeck(end);
+		setPlayerHand(pHand);
+		setDealerHand(dHand);
+	};
+	const dealCardForDealer = () => {
+		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
+		setDealerHand((prevHand) => {
+			return [...prevHand, nextCard];
+		});
+		game.setCurrentPosOfGameDeck((prevPos) => {
+			return prevPos + 1;
+		});
+	};
+
+	const resetRound = () => {
+		setIsPlayerTurn(false);
+		setIsDealersTurn(false);
+		setPlayerBet(0);
+		setPlayerHandValue(0);
+		setDealerHandValue(0);
+		setIsMakingBet(true);
+		setPlayerHand([blankHand]);
+		setDealerHand([blankHand]);
+	};
+
+	const handleStayAction = async () => {
+		setIsDealersTurn(true);
+	};
+
+	const increaseBet = () => {
+		setPlayerBet((prevPlayerBet) => {
+			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
+		});
+	};
+	const decreaseBet = (amount: number) => {
+		setPlayerBet((prevPlayerBet) => {
+			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
+		});
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (playerHandValue === 21) {
 			toast.info("Player won!", {
@@ -65,63 +128,15 @@ export const PlayerOptions = () => {
 		}
 	}, [playerHandValue]);
 
-	const handleHitAction = () => {
-		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
-		setPlayerHand([...playerHand, nextCard]);
-		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
-	};
-	const dealInitialHands = () => {
-		const start = game.currentPosOfGameDeck;
-		const end = start + 4;
-		const pHand: ICard[] = [];
-		const dHand: ICard[] = [];
-
-		for (let i = start; i < end; i++) {
-			if (i % 2 === 0) {
-				pHand.push(game.gameDeck[i]);
-			} else {
-				dHand.push(game.gameDeck[i]);
-			}
-			delay();
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (dealerHandValue < 17 && isDealersTurn) {
+			dealCardForDealer();
+			setTimeout(() => {
+				return;
+			}, 5000);
 		}
-		game.setCurrentPosOfGameDeck(end);
-		setPlayerHand(pHand);
-		setDealerHand(dHand);
-	};
-	const dealCardForDealer = (): number => {
-		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
-
-		setDealerHand((prevHand) => {
-			return [...prevHand, nextCard];
-		});
-		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
-		// game.setCurrentPosOfGameDeck((prev) => {
-		// 	return prev + 1;
-		// });
-
-		return dealerHandValue + nextCard.value;
-	};
-
-	const resetRound = () => {
-		setIsPlayerTurn(false);
-		setPlayerBet(0);
-		setPlayerHandValue(0);
-		setDealerHandValue(0);
-		setIsMakingBet(true);
-		setPlayerHand([blankHand]);
-		setDealerHand([blankHand]);
-	};
-
-	const handleStayAction = async () => {
-		let handValue = dealerHandValue;
-
-		while (handValue < 17) {
-			console.log(handValue);
-			handValue = dealCardForDealer();
-			delay();
-		}
-
-		if (handValue > 21) {
+		if (dealerHandValue > 21 && isDealersTurn) {
 			toast.info("Dealer Lost", {
 				position: "top-center",
 				autoClose: 2000,
@@ -135,9 +150,12 @@ export const PlayerOptions = () => {
 			setPlayerBalance((prevPlayerBalance) => {
 				return prevPlayerBalance + playerBet + playerBet;
 			});
-		} else if (handValue >= 17 && handValue <= 21) {
-			// evaluate player and dealer hand value to see who wins
-			if (handValue > playerHandValue) {
+			setTimeout(() => {
+				resetRound();
+			}, 2000);
+		}
+		if (dealerHandValue < 22 && isDealersTurn) {
+			if (dealerHandValue === 21) {
 				toast.info("Dealer Won", {
 					position: "top-center",
 					autoClose: 2000,
@@ -148,35 +166,43 @@ export const PlayerOptions = () => {
 					progress: undefined,
 					theme: "light",
 				});
-			} else {
-				toast.info("Player Won", {
-					position: "top-center",
-					autoClose: 2000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: true,
-					draggable: true,
-					progress: undefined,
-					theme: "light",
-				});
-				setPlayerBalance((prevPlayerBalance) => {
-					return prevPlayerBalance + playerBet + playerBet;
-				});
+				setTimeout(() => {
+					resetRound();
+				}, 2000);
+			}
+			if (dealerHandValue >= 17 && dealerHandValue < 21) {
+				if (dealerHandValue > playerHandValue) {
+					toast.info("Dealer Won", {
+						position: "top-center",
+						autoClose: 2000,
+						hideProgressBar: false,
+						closeOnClick: true,
+						pauseOnHover: true,
+						draggable: true,
+						progress: undefined,
+						theme: "light",
+					});
+				} else {
+					toast.info("Player Won", {
+						position: "top-center",
+						autoClose: 2000,
+						hideProgressBar: false,
+						closeOnClick: true,
+						pauseOnHover: true,
+						draggable: true,
+						progress: undefined,
+						theme: "light",
+					});
+					setPlayerBalance((prevPlayerBalance) => {
+						return prevPlayerBalance + playerBet + playerBet;
+					});
+				}
+				setTimeout(() => {
+					resetRound();
+				}, 2000);
 			}
 		}
-		resetRound();
-	};
-
-	const increaseBet = () => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
-		});
-	};
-	const decreaseBet = (amount: number) => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
-		});
-	};
+	}, [dealerHandValue, isDealersTurn]);
 
 	return (
 		<div className={styles.container}>
