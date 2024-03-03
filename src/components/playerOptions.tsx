@@ -4,6 +4,7 @@ import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
+import { delay } from "../utils/game_utils";
 
 export const PlayerOptions = () => {
 	const game = useContext(GameContext);
@@ -81,6 +82,7 @@ export const PlayerOptions = () => {
 			} else {
 				dHand.push(game.gameDeck[i]);
 			}
+			delay();
 		}
 		game.setCurrentPosOfGameDeck(end);
 		setPlayerHand(pHand);
@@ -88,12 +90,14 @@ export const PlayerOptions = () => {
 	};
 	const dealCardForDealer = (): number => {
 		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
+
 		setDealerHand((prevHand) => {
 			return [...prevHand, nextCard];
 		});
-		game.setCurrentPosOfGameDeck((prev) => {
-			return prev + 1;
-		});
+		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
+		// game.setCurrentPosOfGameDeck((prev) => {
+		// 	return prev + 1;
+		// });
 
 		return dealerHandValue + nextCard.value;
 	};
@@ -114,7 +118,7 @@ export const PlayerOptions = () => {
 		while (handValue < 17) {
 			console.log(handValue);
 			handValue = dealCardForDealer();
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+			delay();
 		}
 
 		if (handValue > 21) {

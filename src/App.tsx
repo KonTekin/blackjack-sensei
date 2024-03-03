@@ -44,7 +44,7 @@ function App() {
 			<PlayerHandInfo />
 			<PlayerOptions />
 
-			<div className="card-deck-container">Deck of Cards</div>
+			{/* <div className="card-deck-container">Deck of Cards</div> */}
 		</div>
 	);
 }

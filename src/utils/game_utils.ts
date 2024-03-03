@@ -8,3 +8,5 @@ export const calcCardValue = (value: number): number => {
 export const calculateHandValue = (cards: ICard[]): number => {
 	return cards.reduce((acc, card) => acc + calcCardValue(card.value), 0);
 };
+
+export const delay = () => new Promise((resolve) => setTimeout(resolve, 0));
