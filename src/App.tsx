@@ -24,8 +24,6 @@ function App() {
 			gameDeck[i] = gameDeck[j];
 			gameDeck[j] = temp;
 		}
-		console.log(gameDeck.length);
-		console.log(gameDeck);
 	};
 	return (
 		<div className="app-container">

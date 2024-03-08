@@ -1,17 +1,11 @@
-import { useContext, useEffect } from "react";
-import { calculateHandValue } from "../utils/game_utils";
+import { useContext } from "react";
+
 import { DealerContext } from "../context/dealer";
 import { Card } from "./card";
 import { nanoid } from "nanoid";
 
 export const DealerHand = () => {
-	const { dealerHand, setDealerHandValue } = useContext(DealerContext);
-
-	useEffect(() => {
-		const totalHandValue = calculateHandValue(dealerHand);
-		setDealerHandValue(totalHandValue);
-	}, [dealerHand, setDealerHandValue]);
-
+	const { dealerHand } = useContext(DealerContext);
 	return (
 		<div className="dealer-hand-container">
 			{dealerHand[0].value !== 0 &&

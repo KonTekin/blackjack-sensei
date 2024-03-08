@@ -4,31 +4,30 @@ import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
-import { ICard, blankHand } from "../constants";
+import { GameState, ICard, blankHand } from "../constants";
+import { calculateHandValue } from "../utils/game_utils";
 
 export const PlayerOptions = () => {
-	const game = useContext(GameContext);
+	const {
+		gameState,
+		gameDeck,
+		currentPosOfGameDeck,
+		setCurrentPosOfGameDeck,
+		setGameState,
+		setGameDeck,
+	} = useContext(GameContext);
 	const {
 		setPlayerBet,
-		setIsPlayerTurn,
 		setPlayerBalance,
-		setIsMakingBet,
 		setPlayerHand,
 		setPlayerHandValue,
 		playerBalance,
 		playerHandValue,
 		playerBet,
 		playerHand,
-		isMakingBet,
-		isPlayerTurn,
 	} = useContext(PlayerContext);
-	const {
-		isDealersTurn,
-		setIsDealersTurn,
-		setDealerHand,
-		setDealerHandValue,
-		dealerHandValue,
-	} = useContext(DealerContext);
+	const { setDealerHand, setDealerHandValue, dealerHandValue, dealerHand } =
+		useContext(DealerContext);
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -36,56 +35,66 @@ export const PlayerOptions = () => {
 			setPlayerBalance((prevPlayerBalance) => {
 				return prevPlayerBalance - playerBet;
 			});
-			setIsPlayerTurn(true);
-			setIsMakingBet(false);
+			setGameState(GameState.PlayerPlaying);
 		}
 	};
 
 	const handleHitAction = () => {
-		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
+		const nextCard = gameDeck[currentPosOfGameDeck];
 		setPlayerHand([...playerHand, nextCard]);
-		game.setCurrentPosOfGameDeck(++game.currentPosOfGameDeck);
+		setCurrentPosOfGameDeck((prevPos) => {
+			return prevPos + 1;
+		});
 	};
 	const dealInitialHands = () => {
-		const start = game.currentPosOfGameDeck;
-		const end = start + 4;
-		const pHand: ICard[] = [];
-		const dHand: ICard[] = [];
+		const count = 0;
+		dealerHand.pop();
+		playerHand.pop();
 
-		for (let i = start; i < end; i++) {
+		for (let i = count; i < 4; i++) {
 			if (i % 2 === 0) {
-				pHand.push(game.gameDeck[i]);
+				const card = dealCard();
+				dealerHand.push(card);
+				setDealerHand(dealerHand);
 			} else {
-				dHand.push(game.gameDeck[i]);
+				const card = dealCard();
+				playerHand.push(card);
+				setPlayerHand(playerHand);
 			}
 		}
-		game.setCurrentPosOfGameDeck(end);
-		setPlayerHand(pHand);
-		setDealerHand(dHand);
 	};
+
+	// Temp function need to refactor to deal card to any hand
 	const dealCardForDealer = () => {
-		const nextCard = game.gameDeck[game.currentPosOfGameDeck];
+		const nextCard = gameDeck[currentPosOfGameDeck];
 		setDealerHand((prevHand) => {
 			return [...prevHand, nextCard];
 		});
-		game.setCurrentPosOfGameDeck((prevPos) => {
+		setCurrentPosOfGameDeck((prevPos) => {
 			return prevPos + 1;
 		});
 	};
 
+	const dealCard = (): ICard => {
+		// Todo: Need to add a check to see if deck is empty, if so then shuffle new deck
+		const nextCard = gameDeck.pop();
+		setGameDeck([...gameDeck]);
+
+		return nextCard ? nextCard : { value: 0, suit: "empty" };
+	};
+
 	const resetRound = () => {
-		setIsPlayerTurn(false);
-		setIsDealersTurn(false);
 		setPlayerBet(0);
 		setPlayerHandValue(0);
 		setDealerHandValue(0);
-		setIsMakingBet(true);
+		setGameState(GameState.Betting);
 		setPlayerHand([blankHand]);
 		setDealerHand([blankHand]);
 	};
 
 	const handleStayAction = async () => {
-		setIsDealersTurn(true);
+		setGameState(GameState.DealerPlaying);
+		dealCardForDealer();
 	};
 
 	const increaseBet = () => {
@@ -101,43 +110,52 @@ export const PlayerOptions = () => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (playerHandValue === 21) {
-			toast.info("Player won!", {
-				position: "top-center",
-				autoClose: 2000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "light",
-			});
-			resetRound();
+		if (gameState === GameState.PlayerPlaying) {
+			// deal card to player hand
+			//calculate hand value
+			const currentHandValue = calculateHandValue(playerHand);
+			//set hand value
+			setPlayerHandValue(currentHandValue);
+			//analyze hand for bust
+
+			// if (currentHandValue === 21) {
+			// 	toast.info("Player won!", {
+			// 		position: "top-center",
+			// 		autoClose: 2000,
+			// 		hideProgressBar: false,
+			// 		closeOnClick: true,
+			// 		pauseOnHover: true,
+			// 		draggable: true,
+			// 		progress: undefined,
+			// 		theme: "light",
+			// 	});
+			// 	resetRound();
+			// }
+			// if (currentHandValue > 21) {
+			// 	toast.info("Player Lost", {
+			// 		position: "top-center",
+			// 		autoClose: 2000,
+			// 		hideProgressBar: false,
+			// 		closeOnClick: true,
+			// 		pauseOnHover: true,
+			// 		draggable: true,
+			// 		progress: undefined,
+			// 		theme: "light",
+			// 	});
+			// 	resetRound();
+			// }
 		}
-		if (playerHandValue > 21) {
-			toast.info("Player Lost", {
-				position: "top-center",
-				autoClose: 2000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "light",
-			});
-			resetRound();
-		}
-	}, [playerHandValue]);
+	}, [playerHand]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (dealerHandValue < 17 && isDealersTurn) {
+		if (dealerHandValue < 17 && gameState === GameState.DealerPlaying) {
 			dealCardForDealer();
 			setTimeout(() => {
 				return;
 			}, 5000);
 		}
-		if (dealerHandValue > 21 && isDealersTurn) {
+		if (dealerHandValue > 21 && gameState === GameState.DealerPlaying) {
 			toast.info("Dealer Lost", {
 				position: "top-center",
 				autoClose: 2000,
@@ -155,7 +173,7 @@ export const PlayerOptions = () => {
 				resetRound();
 			}, 2000);
 		}
-		if (dealerHandValue < 22 && isDealersTurn) {
+		if (dealerHandValue < 22 && gameState === GameState.DealerPlaying) {
 			if (dealerHandValue === 21) {
 				toast.info("Dealer Won", {
 					position: "top-center",
@@ -203,11 +221,11 @@ export const PlayerOptions = () => {
 				}, 2000);
 			}
 		}
-	}, [dealerHandValue, isDealersTurn]);
+	}, [dealerHand]);
 
 	return (
 		<div className={styles.container}>
-			{isMakingBet && (
+			{gameState === GameState.Betting && (
 				<>
 					<div className={styles.inner}>
 						<div className={styles.actions}>
@@ -237,7 +255,7 @@ export const PlayerOptions = () => {
 					</button>
 				</>
 			)}
-			{isPlayerTurn && (
+			{gameState === GameState.PlayerPlaying && (
 				<>
 					<div>
 						<button

@@ -3,8 +3,8 @@ import { ReactNode } from "react";
 export enum GameState {
 	Init = "init",
 	Betting = "betting",
-	Dealing = "dealing",
 	PlayerPlaying = "player playing",
+	DealerPlaying = "dealer playing",
 	Win = "win",
 	Lose = "lose",
 	Draw = "draw",
