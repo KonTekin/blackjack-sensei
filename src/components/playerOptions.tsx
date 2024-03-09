@@ -8,14 +8,8 @@ import { GameState, ICard, blankHand } from "../constants";
 import { calculateHandValue } from "../utils/game_utils";
 
 export const PlayerOptions = () => {
-	const {
-		gameState,
-		gameDeck,
-		currentPosOfGameDeck,
-		setCurrentPosOfGameDeck,
-		setGameState,
-		setGameDeck,
-	} = useContext(GameContext);
+	const { gameState, gameDeck, setGameState, setGameDeck } =
+		useContext(GameContext);
 	const {
 		setPlayerBet,
 		setPlayerBalance,
@@ -26,7 +20,7 @@ export const PlayerOptions = () => {
 		playerBet,
 		playerHand,
 	} = useContext(PlayerContext);
-	const { setDealerHand, setDealerHandValue, dealerHandValue, dealerHand } =
+	const { setDealerHand, setDealerHandValue, dealerHand, dealerHandValue } =
 		useContext(DealerContext);
 
 	const handleBetAction = () => {
@@ -36,15 +30,17 @@ export const PlayerOptions = () => {
 				return prevPlayerBalance - playerBet;
 			});
 			setGameState(GameState.PlayerPlaying);
+			const currentHandValue = calculateHandValue(playerHand);
+			setPlayerHandValue(currentHandValue);
 		}
 	};
 
 	const handleHitAction = () => {
-		const nextCard = gameDeck[currentPosOfGameDeck];
-		setPlayerHand([...playerHand, nextCard]);
-		setCurrentPosOfGameDeck((prevPos) => {
-			return prevPos + 1;
-		});
+		addCardToHand({ isForPlayer: true });
+		//calculate hand value
+		const currentHandValue = calculateHandValue(playerHand);
+		//set hand value
+		setPlayerHandValue(currentHandValue);
 	};
 	const dealInitialHands = () => {
 		const count = 0;
@@ -53,26 +49,29 @@ export const PlayerOptions = () => {
 
 		for (let i = count; i < 4; i++) {
 			if (i % 2 === 0) {
-				const card = dealCard();
-				dealerHand.push(card);
-				setDealerHand(dealerHand);
+				addCardToHand({ isForPlayer: false });
 			} else {
-				const card = dealCard();
-				playerHand.push(card);
-				setPlayerHand(playerHand);
+				addCardToHand({ isForPlayer: true });
 			}
 		}
+		const currentDealerHandValue = calculateHandValue(dealerHand);
+		setDealerHandValue(currentDealerHandValue);
+
+		const currentPlayerHandValue = calculateHandValue(playerHand);
+		setPlayerHandValue(currentPlayerHandValue);
 	};
 
 	// Temp function need to refactor to deal card to any hand
-	const dealCardForDealer = () => {
-		const nextCard = gameDeck[currentPosOfGameDeck];
-		setDealerHand((prevHand) => {
-			return [...prevHand, nextCard];
-		});
-		setCurrentPosOfGameDeck((prevPos) => {
-			return prevPos + 1;
-		});
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const addCardToHand = ({ isForPlayer }: { isForPlayer: boolean }) => {
+		const nextCard = dealCard();
+		if (isForPlayer) {
+			playerHand.push(nextCard);
+			setPlayerHand(playerHand);
+		} else {
+			dealerHand.push(nextCard);
+			setDealerHand(dealerHand);
+		}
 	};
 
 	const dealCard = (): ICard => {
@@ -94,7 +93,9 @@ export const PlayerOptions = () => {
 
 	const handleStayAction = async () => {
 		setGameState(GameState.DealerPlaying);
-		dealCardForDealer();
+		addCardToHand({ isForPlayer: false });
+		const currentHandValue = calculateHandValue(dealerHand);
+		setDealerHandValue(currentHandValue);
 	};
 
 	const increaseBet = () => {
@@ -111,46 +112,42 @@ export const PlayerOptions = () => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (gameState === GameState.PlayerPlaying) {
-			// deal card to player hand
-			//calculate hand value
-			const currentHandValue = calculateHandValue(playerHand);
-			//set hand value
-			setPlayerHandValue(currentHandValue);
 			//analyze hand for bust
-
-			// if (currentHandValue === 21) {
-			// 	toast.info("Player won!", {
-			// 		position: "top-center",
-			// 		autoClose: 2000,
-			// 		hideProgressBar: false,
-			// 		closeOnClick: true,
-			// 		pauseOnHover: true,
-			// 		draggable: true,
-			// 		progress: undefined,
-			// 		theme: "light",
-			// 	});
-			// 	resetRound();
-			// }
-			// if (currentHandValue > 21) {
-			// 	toast.info("Player Lost", {
-			// 		position: "top-center",
-			// 		autoClose: 2000,
-			// 		hideProgressBar: false,
-			// 		closeOnClick: true,
-			// 		pauseOnHover: true,
-			// 		draggable: true,
-			// 		progress: undefined,
-			// 		theme: "light",
-			// 	});
-			// 	resetRound();
-			// }
+			if (playerHandValue === 21) {
+				toast.info("Player won!", {
+					position: "top-center",
+					autoClose: 2000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "light",
+				});
+				resetRound();
+			}
+			if (playerHandValue > 21) {
+				toast.info("Player Lost", {
+					position: "top-center",
+					autoClose: 2000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "light",
+				});
+				resetRound();
+			}
 		}
-	}, [playerHand]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [gameState, playerHand, playerHandValue]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (dealerHandValue < 17 && gameState === GameState.DealerPlaying) {
-			dealCardForDealer();
+			addCardToHand({ isForPlayer: false });
+
 			setTimeout(() => {
 				return;
 			}, 5000);
@@ -221,7 +218,8 @@ export const PlayerOptions = () => {
 				}, 2000);
 			}
 		}
-	}, [dealerHand]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dealerHand, gameState, dealerHandValue]);
 
 	return (
 		<div className={styles.container}>

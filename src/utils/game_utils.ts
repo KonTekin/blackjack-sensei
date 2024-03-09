@@ -10,5 +10,5 @@ export const calculateHandValue = (cards: ICard[]): number => {
 };
 
 export const delay = async (duration: number) => {
-	return new Promise((resolve) => setTimeout(resolve, duration));
+	return await new Promise((resolve) => setTimeout(resolve, duration));
 };

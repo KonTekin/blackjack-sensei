@@ -11,6 +11,7 @@ export enum GameState {
 }
 export interface Props {
 	children?: ReactNode;
+	cards?: ICard[];
 }
 
 export interface ICard {

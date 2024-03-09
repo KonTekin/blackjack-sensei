@@ -2,14 +2,17 @@ import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useContext, useEffect } from "react";
 import { GameContext } from "./context/game";
-import { PlayerHand } from "./components/playerHand";
 import { PlayerHandInfo } from "./components/playerHandInfo";
 import { PlayerOptions } from "./components/playerOptions";
-import { DealerHand } from "./components/dealerHand";
 import { ToastContainer } from "react-toastify";
+import { Hand } from "./components/hand";
+import { PlayerContext } from "./context/player";
+import { DealerContext } from "./context/dealer";
 
 function App() {
 	const { gameDeck } = useContext(GameContext);
+	const { playerHand } = useContext(PlayerContext);
+	const { dealerHand } = useContext(DealerContext);
 
 	useEffect(() => {
 		shuffleGameDeck();
@@ -39,8 +42,10 @@ function App() {
 				pauseOnHover
 				theme="light"
 			/>
-			<DealerHand />
-			<PlayerHand />
+			{/* <DealerHand />
+			<PlayerHand /> */}
+			<Hand cards={playerHand} isPlayerHand={true} />
+			<Hand cards={dealerHand} isPlayerHand={false} />
 			<PlayerHandInfo />
 			<PlayerOptions />
 
