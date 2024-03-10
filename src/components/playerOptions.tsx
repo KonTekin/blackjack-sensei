@@ -61,7 +61,6 @@ export const PlayerOptions = () => {
 		setPlayerHandValue(currentPlayerHandValue);
 	};
 
-	// Temp function need to refactor to deal card to any hand
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const addCardToHand = ({ isForPlayer }: { isForPlayer: boolean }) => {
 		const nextCard = dealCard();
@@ -93,7 +92,7 @@ export const PlayerOptions = () => {
 
 	const handleStayAction = async () => {
 		setGameState(GameState.DealerPlaying);
-		addCardToHand({ isForPlayer: false });
+		// addCardToHand({ isForPlayer: false });
 		const currentHandValue = calculateHandValue(dealerHand);
 		setDealerHandValue(currentHandValue);
 	};
@@ -147,10 +146,8 @@ export const PlayerOptions = () => {
 	useEffect(() => {
 		if (dealerHandValue < 17 && gameState === GameState.DealerPlaying) {
 			addCardToHand({ isForPlayer: false });
-
-			setTimeout(() => {
-				return;
-			}, 5000);
+			const currentHandValue = calculateHandValue(dealerHand);
+			setDealerHandValue(currentHandValue);
 		}
 		if (dealerHandValue > 21 && gameState === GameState.DealerPlaying) {
 			toast.info("Dealer Lost", {
@@ -168,7 +165,7 @@ export const PlayerOptions = () => {
 			});
 			setTimeout(() => {
 				resetRound();
-			}, 2000);
+			}, 5000);
 		}
 		if (dealerHandValue < 22 && gameState === GameState.DealerPlaying) {
 			if (dealerHandValue === 21) {
@@ -184,7 +181,7 @@ export const PlayerOptions = () => {
 				});
 				setTimeout(() => {
 					resetRound();
-				}, 2000);
+				}, 5000);
 			}
 			if (dealerHandValue >= 17 && dealerHandValue < 21) {
 				if (dealerHandValue > playerHandValue) {
@@ -215,7 +212,7 @@ export const PlayerOptions = () => {
 				}
 				setTimeout(() => {
 					resetRound();
-				}, 2000);
+				}, 5000);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
