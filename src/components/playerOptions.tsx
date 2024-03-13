@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
 import { GameState, ICard, blankHand } from "../constants";
 import { calculateHandValue } from "../utils/game_utils";
+import useBetActions from "../hooks/useBetActions";
 
 export const PlayerOptions = () => {
 	const { gameState, gameDeck, setGameState, setGameDeck } =
@@ -15,13 +16,14 @@ export const PlayerOptions = () => {
 		setPlayerBalance,
 		setPlayerHand,
 		setPlayerHandValue,
-		playerBalance,
 		playerHandValue,
 		playerBet,
 		playerHand,
 	} = useContext(PlayerContext);
 	const { setDealerHand, setDealerHandValue, dealerHand, dealerHandValue } =
 		useContext(DealerContext);
+
+	const { increaseBet, decreaseBet } = useBetActions();
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -95,17 +97,6 @@ export const PlayerOptions = () => {
 		// addCardToHand({ isForPlayer: false });
 		const currentHandValue = calculateHandValue(dealerHand);
 		setDealerHandValue(currentHandValue);
-	};
-
-	const increaseBet = () => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
-		});
-	};
-	const decreaseBet = (amount: number) => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
-		});
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
