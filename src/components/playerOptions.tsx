@@ -4,24 +4,25 @@ import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
-import { GameState, ICard, blankHand } from "../constants";
+import { GameState } from "../constants";
 import { calculateHandValue } from "../utils/game_utils";
+import useBetActions from "../hooks/useBetActions";
+import useGameActions from "../hooks/useGameActions";
 
 export const PlayerOptions = () => {
-	const { gameState, gameDeck, setGameState, setGameDeck } =
-		useContext(GameContext);
+	const { gameState, setGameState } = useContext(GameContext);
 	const {
-		setPlayerBet,
 		setPlayerBalance,
-		setPlayerHand,
 		setPlayerHandValue,
-		playerBalance,
 		playerHandValue,
 		playerBet,
 		playerHand,
 	} = useContext(PlayerContext);
-	const { setDealerHand, setDealerHandValue, dealerHand, dealerHandValue } =
+	const { setDealerHandValue, dealerHand, dealerHandValue } =
 		useContext(DealerContext);
+
+	const { increaseBet, decreaseBet } = useBetActions();
+	const { resetRound, addCardToHand } = useGameActions();
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -62,50 +63,12 @@ export const PlayerOptions = () => {
 	};
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const addCardToHand = ({ isForPlayer }: { isForPlayer: boolean }) => {
-		const nextCard = dealCard();
-		if (isForPlayer) {
-			playerHand.push(nextCard);
-			setPlayerHand(playerHand);
-		} else {
-			dealerHand.push(nextCard);
-			setDealerHand(dealerHand);
-		}
-	};
-
-	const dealCard = (): ICard => {
-		// Todo: Need to add a check to see if deck is empty, if so then shuffle new deck
-		const nextCard = gameDeck.pop();
-		setGameDeck([...gameDeck]);
-
-		return nextCard ? nextCard : { value: 0, suit: "empty" };
-	};
-
-	const resetRound = () => {
-		setPlayerBet(0);
-		setPlayerHandValue(0);
-		setDealerHandValue(0);
-		setGameState(GameState.Betting);
-		setPlayerHand([blankHand]);
-		setDealerHand([blankHand]);
-	};
 
 	const handleStayAction = async () => {
 		setGameState(GameState.DealerPlaying);
 		// addCardToHand({ isForPlayer: false });
 		const currentHandValue = calculateHandValue(dealerHand);
 		setDealerHandValue(currentHandValue);
-	};
-
-	const increaseBet = () => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet < playerBalance ? prevPlayerBet + 5 : prevPlayerBet;
-		});
-	};
-	const decreaseBet = (amount: number) => {
-		setPlayerBet((prevPlayerBet) => {
-			return prevPlayerBet > amount ? prevPlayerBet - amount : 0;
-		});
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
