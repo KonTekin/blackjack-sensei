@@ -5,9 +5,19 @@ export enum GameState {
 	Betting = "betting",
 	PlayerPlaying = "player playing",
 	DealerPlaying = "dealer playing",
-	Win = "win",
-	Lose = "lose",
-	Draw = "draw",
+	AnalyzingRound = "analyzing round",
+}
+export enum BlackjackHand {
+	Player = 0,
+	Dealer = 1,
+	Draw = 2,
+	None = 3,
+}
+
+export enum Winner {
+	Player = 0,
+	Dealer = 1,
+	Draw = 2,
 }
 export interface Props {
 	children?: ReactNode;

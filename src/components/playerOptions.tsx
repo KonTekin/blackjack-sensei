@@ -2,12 +2,15 @@ import { useContext, useEffect } from "react";
 import { GameContext } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
-import { toast } from "react-toastify";
 import styles from "../styles/playerOptions.module.css";
-import { GameState } from "../constants";
-import { calculateHandValue } from "../utils/game_utils";
+import { BlackjackHand, GameState, Winner } from "../constants";
+import {
+	calculateHandValue,
+	displayEndOfRoundMessage,
+} from "../utils/game_utils";
 import useBetActions from "../hooks/useBetActions";
 import useGameActions from "../hooks/useGameActions";
+import useAnalyze from "../hooks/useAnalyze";
 
 export const PlayerOptions = () => {
 	const { gameState, setGameState } = useContext(GameContext);
@@ -23,6 +26,8 @@ export const PlayerOptions = () => {
 
 	const { increaseBet, decreaseBet } = useBetActions();
 	const { resetRound, addCardToHand } = useGameActions();
+	const { checkForBlackjack, checkPlayerHandForBust, checkForRoundWinner } =
+		useAnalyze();
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -55,18 +60,21 @@ export const PlayerOptions = () => {
 				addCardToHand({ isForPlayer: true });
 			}
 		}
-		const currentDealerHandValue = calculateHandValue(dealerHand);
-		setDealerHandValue(currentDealerHandValue);
 
 		const currentPlayerHandValue = calculateHandValue(playerHand);
 		setPlayerHandValue(currentPlayerHandValue);
+
+		const blackjack = checkForBlackjack();
+		if (blackjack !== BlackjackHand.None) {
+			displayEndOfRoundMessage(blackjack);
+			resetRound();
+		}
 	};
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 
 	const handleStayAction = async () => {
 		setGameState(GameState.DealerPlaying);
-		// addCardToHand({ isForPlayer: false });
 		const currentHandValue = calculateHandValue(dealerHand);
 		setDealerHandValue(currentHandValue);
 	};
@@ -74,31 +82,9 @@ export const PlayerOptions = () => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (gameState === GameState.PlayerPlaying) {
-			//analyze hand for bust
-			if (playerHandValue === 21) {
-				toast.info("Player won!", {
-					position: "top-center",
-					autoClose: 2000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: true,
-					draggable: true,
-					progress: undefined,
-					theme: "light",
-				});
-				resetRound();
-			}
-			if (playerHandValue > 21) {
-				toast.info("Player Lost", {
-					position: "top-center",
-					autoClose: 2000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: true,
-					draggable: true,
-					progress: undefined,
-					theme: "light",
-				});
+			const isBust = checkPlayerHandForBust();
+			if (isBust) {
+				displayEndOfRoundMessage(Winner.Dealer);
 				resetRound();
 			}
 		}
@@ -107,79 +93,31 @@ export const PlayerOptions = () => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (dealerHandValue < 17 && gameState === GameState.DealerPlaying) {
-			addCardToHand({ isForPlayer: false });
+		if (gameState === GameState.DealerPlaying) {
 			const currentHandValue = calculateHandValue(dealerHand);
 			setDealerHandValue(currentHandValue);
-		}
-		if (dealerHandValue > 21 && gameState === GameState.DealerPlaying) {
-			toast.info("Dealer Lost", {
-				position: "top-center",
-				autoClose: 2000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "light",
-			});
-			setPlayerBalance((prevPlayerBalance) => {
-				return prevPlayerBalance + playerBet + playerBet;
-			});
-			setTimeout(() => {
-				resetRound();
-			}, 5000);
-		}
-		if (dealerHandValue < 22 && gameState === GameState.DealerPlaying) {
-			if (dealerHandValue === 21) {
-				toast.info("Dealer Won", {
-					position: "top-center",
-					autoClose: 2000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: true,
-					draggable: true,
-					progress: undefined,
-					theme: "light",
-				});
-				setTimeout(() => {
-					resetRound();
-				}, 5000);
-			}
-			if (dealerHandValue >= 17 && dealerHandValue < 21) {
-				if (dealerHandValue > playerHandValue) {
-					toast.info("Dealer Won", {
-						position: "top-center",
-						autoClose: 2000,
-						hideProgressBar: false,
-						closeOnClick: true,
-						pauseOnHover: true,
-						draggable: true,
-						progress: undefined,
-						theme: "light",
-					});
-				} else {
-					toast.info("Player Won", {
-						position: "top-center",
-						autoClose: 2000,
-						hideProgressBar: false,
-						closeOnClick: true,
-						pauseOnHover: true,
-						draggable: true,
-						progress: undefined,
-						theme: "light",
-					});
-					setPlayerBalance((prevPlayerBalance) => {
-						return prevPlayerBalance + playerBet + playerBet;
-					});
-				}
-				setTimeout(() => {
-					resetRound();
-				}, 5000);
+			if (currentHandValue < 17) {
+				addCardToHand({ isForPlayer: false });
+			} else {
+				setGameState(GameState.AnalyzingRound);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dealerHand, gameState, dealerHandValue]);
+	}, [dealerHand, dealerHandValue, GameState]);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (gameState === GameState.AnalyzingRound) {
+			const winner = checkForRoundWinner();
+			if (winner === Winner.Player) {
+				setPlayerBalance((prevPlayerBalance) => {
+					return prevPlayerBalance + playerBet + playerBet;
+				});
+			}
+			displayEndOfRoundMessage(winner);
+			setTimeout(() => resetRound(), 10000);
+		}
+	}, [gameState]);
 
 	return (
 		<div className={styles.container}>

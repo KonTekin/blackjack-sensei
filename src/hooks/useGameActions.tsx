@@ -8,8 +8,7 @@ const useGameActions = () => {
 	const { setGameState, setGameDeck, gameDeck } = useContext(GameContext);
 	const { setPlayerBet, setPlayerHand, setPlayerHandValue, playerHand } =
 		useContext(PlayerContext);
-	const { setDealerHand, setDealerHandValue, dealerHand } =
-		useContext(DealerContext);
+	const { setDealerHand, setDealerHandValue } = useContext(DealerContext);
 
 	const addCardToHand = ({ isForPlayer }: { isForPlayer: boolean }) => {
 		const nextCard = dealCard();
@@ -17,8 +16,9 @@ const useGameActions = () => {
 			playerHand.push(nextCard);
 			setPlayerHand(playerHand);
 		} else {
-			dealerHand.push(nextCard);
-			setDealerHand(dealerHand);
+			setDealerHand((prevHand) => {
+				return [...prevHand, nextCard];
+			});
 		}
 	};
 

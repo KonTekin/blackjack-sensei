@@ -1,6 +1,8 @@
 import { Card } from "./card";
 import { nanoid } from "nanoid";
 import { ICard } from "../constants";
+import { useContext, useEffect } from "react";
+import { DealerContext } from "../context/dealer";
 
 interface HandProps {
 	cards: ICard[];
@@ -8,6 +10,9 @@ interface HandProps {
 }
 
 export const Hand: React.FC<HandProps> = ({ cards, isPlayerHand }) => {
+	const { dealerHand } = useContext(DealerContext);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {}, [dealerHand]);
 	return (
 		<div
 			className={
