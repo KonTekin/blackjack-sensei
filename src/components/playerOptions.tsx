@@ -68,7 +68,7 @@ export const PlayerOptions = () => {
 		const blackjack = checkForBlackjack();
 		if (blackjack !== BlackjackHand.None) {
 			displayEndOfRoundMessage(blackjack);
-			resetRound();
+			setTimeout(() => resetRound(), 5000);
 		}
 	};
 
@@ -86,7 +86,7 @@ export const PlayerOptions = () => {
 			const isBust = checkPlayerHandForBust();
 			if (isBust) {
 				displayEndOfRoundMessage(Winner.Dealer);
-				resetRound();
+				setTimeout(() => resetRound(), 5000);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,7 +152,7 @@ export const PlayerOptions = () => {
 					</button>
 				</>
 			)}
-			{gameState === GameState.PlayerPlaying && (
+			{gameState === GameState.PlayerPlaying && playerHandValue < 22 && (
 				<>
 					<div>
 						<button

@@ -17,9 +17,6 @@ const useAnalyze = () => {
 		);
 	};
 
-	// const currentPlayerHandValue = calculateHandValue(playerHand, true);
-	// const currentDealerHandValue = calculateHandValue(dealerHand, false);
-
 	const calcCardValue = ({
 		card,
 		isFromPlayerHand,
