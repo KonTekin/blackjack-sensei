@@ -97,7 +97,7 @@ export const PlayerOptions = () => {
 			const currentHandValue = calculateHandValue(dealerHand);
 			setDealerHandValue(currentHandValue);
 			if (currentHandValue < 17) {
-				addCardToHand({ isForPlayer: false });
+				setTimeout(() => addCardToHand({ isForPlayer: false }), 1000);
 			} else {
 				setGameState(GameState.AnalyzingRound);
 			}
