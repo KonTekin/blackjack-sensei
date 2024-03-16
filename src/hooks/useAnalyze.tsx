@@ -1,27 +1,53 @@
 import { useContext } from "react";
-import { BlackjackHand, Winner } from "../constants";
+import { BlackjackHand, ICard, Winner } from "../constants";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
-import { calculateHandValue } from "../utils/game_utils";
 
 const useAnalyze = () => {
-	const { playerHand } = useContext(PlayerContext);
-	const { dealerHand } = useContext(DealerContext);
+	const { playerHandValue } = useContext(PlayerContext);
+	const { dealerHandValue } = useContext(DealerContext);
 
-	const currentPlayerHandValue = calculateHandValue(playerHand);
-	const currentDealerHandValue = calculateHandValue(dealerHand);
+	const calculateHandValue = (
+		cards: ICard[],
+		isFromPlayerHand: boolean,
+	): number => {
+		return cards.reduce(
+			(acc, card) => acc + calcCardValue({ card, isFromPlayerHand }),
+			0,
+		);
+	};
+
+	// const currentPlayerHandValue = calculateHandValue(playerHand, true);
+	// const currentDealerHandValue = calculateHandValue(dealerHand, false);
+
+	const calcCardValue = ({
+		card,
+		isFromPlayerHand,
+	}: { card: ICard; isFromPlayerHand: boolean }): number => {
+		const { value } = card;
+		if (value === 1) {
+			//check total hand value exceeds 21 if card value is 11
+			if (isFromPlayerHand) {
+				return playerHandValue + 11 < 22 ? 11 : 1;
+			}
+			return dealerHandValue + 11 < 22 ? 11 : 1;
+		}
+
+		if (value >= 10) return 10;
+		return value;
+	};
 
 	const checkForBlackjack = (): BlackjackHand => {
-		if (currentDealerHandValue === 21 && currentPlayerHandValue === 21)
+		if (dealerHandValue === 21 && playerHandValue === 21)
 			return BlackjackHand.Draw;
-		if (currentPlayerHandValue === 21) return BlackjackHand.Player;
-		if (currentDealerHandValue === 21) return BlackjackHand.Dealer;
+		if (playerHandValue === 21) return BlackjackHand.Player;
+		if (dealerHandValue === 21) return BlackjackHand.Dealer;
 
 		return BlackjackHand.None;
 	};
 
 	const checkForRoundWinner = (): Winner => {
-		if (currentDealerHandValue > 21) return Winner.Player;
+		if (dealerHandValue > 21) return Winner.Player;
 
 		const blackjack = checkForBlackjack();
 
@@ -29,17 +55,23 @@ const useAnalyze = () => {
 		if (blackjack === BlackjackHand.Player) return Winner.Player;
 		if (blackjack === BlackjackHand.Draw) return Winner.Draw;
 
-		if (currentDealerHandValue === currentPlayerHandValue) return Winner.Draw;
+		if (dealerHandValue === playerHandValue) return Winner.Draw;
 
-		if (currentDealerHandValue > currentPlayerHandValue) return Winner.Dealer;
+		if (dealerHandValue > playerHandValue) return Winner.Dealer;
 
 		return Winner.Player;
 	};
 
 	const checkPlayerHandForBust = () => {
-		return currentPlayerHandValue > 21 ? true : false;
+		return playerHandValue > 21 ? true : false;
 	};
-	return { checkForBlackjack, checkForRoundWinner, checkPlayerHandForBust };
+	return {
+		checkForBlackjack,
+		checkForRoundWinner,
+		checkPlayerHandForBust,
+		calculateHandValue,
+		calcCardValue,
+	};
 };
 
 export default useAnalyze;

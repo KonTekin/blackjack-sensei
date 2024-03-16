@@ -4,10 +4,7 @@ import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import styles from "../styles/playerOptions.module.css";
 import { BlackjackHand, GameState, Winner } from "../constants";
-import {
-	calculateHandValue,
-	displayEndOfRoundMessage,
-} from "../utils/game_utils";
+import { displayEndOfRoundMessage } from "../utils/game_utils";
 import useBetActions from "../hooks/useBetActions";
 import useGameActions from "../hooks/useGameActions";
 import useAnalyze from "../hooks/useAnalyze";
@@ -26,8 +23,12 @@ export const PlayerOptions = () => {
 
 	const { increaseBet, decreaseBet } = useBetActions();
 	const { resetRound, addCardToHand } = useGameActions();
-	const { checkForBlackjack, checkPlayerHandForBust, checkForRoundWinner } =
-		useAnalyze();
+	const {
+		checkForBlackjack,
+		checkPlayerHandForBust,
+		checkForRoundWinner,
+		calculateHandValue,
+	} = useAnalyze();
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -36,7 +37,7 @@ export const PlayerOptions = () => {
 				return prevPlayerBalance - playerBet;
 			});
 			setGameState(GameState.PlayerPlaying);
-			const currentHandValue = calculateHandValue(playerHand);
+			const currentHandValue = calculateHandValue(playerHand, true);
 			setPlayerHandValue(currentHandValue);
 		}
 	};
@@ -44,7 +45,7 @@ export const PlayerOptions = () => {
 	const handleHitAction = () => {
 		addCardToHand({ isForPlayer: true });
 		//calculate hand value
-		const currentHandValue = calculateHandValue(playerHand);
+		const currentHandValue = calculateHandValue(playerHand, true);
 		//set hand value
 		setPlayerHandValue(currentHandValue);
 	};
@@ -61,7 +62,7 @@ export const PlayerOptions = () => {
 			}
 		}
 
-		const currentPlayerHandValue = calculateHandValue(playerHand);
+		const currentPlayerHandValue = calculateHandValue(playerHand, true);
 		setPlayerHandValue(currentPlayerHandValue);
 
 		const blackjack = checkForBlackjack();
@@ -75,7 +76,7 @@ export const PlayerOptions = () => {
 
 	const handleStayAction = async () => {
 		setGameState(GameState.DealerPlaying);
-		const currentHandValue = calculateHandValue(dealerHand);
+		const currentHandValue = calculateHandValue(dealerHand, false);
 		setDealerHandValue(currentHandValue);
 	};
 
@@ -94,7 +95,7 @@ export const PlayerOptions = () => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (gameState === GameState.DealerPlaying) {
-			const currentHandValue = calculateHandValue(dealerHand);
+			const currentHandValue = calculateHandValue(dealerHand, false);
 			setDealerHandValue(currentHandValue);
 			if (currentHandValue < 17) {
 				setTimeout(() => addCardToHand({ isForPlayer: false }), 1000);
@@ -115,7 +116,7 @@ export const PlayerOptions = () => {
 				});
 			}
 			displayEndOfRoundMessage(winner);
-			setTimeout(() => resetRound(), 10000);
+			setTimeout(() => resetRound(), 5000);
 		}
 	}, [gameState]);
 

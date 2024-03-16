@@ -1,12 +1,14 @@
+import { ICard } from "../constants";
+import useAnalyze from "../hooks/useAnalyze";
 import styles from "../styles/card.module.css";
-import { calcCardValue } from "../utils/game_utils";
 
-interface CardProps {
-	value: number;
-	suit: string;
-}
+export const Card: React.FC<ICard> = (
+	card: ICard,
+	isFromPlayerHand: boolean,
+) => {
+	const { value, suit } = card;
 
-export const Card: React.FC<CardProps> = ({ value, suit }) => {
+	const { calcCardValue } = useAnalyze();
 	return (
 		<div className={styles.playingCard}>
 			<div className={styles.flipCard}>
@@ -17,7 +19,10 @@ export const Card: React.FC<CardProps> = ({ value, suit }) => {
 					/>
 				</div>
 				<div className={styles.backSide}>
-					{value === 1 ? "Ace " : `${calcCardValue(value)} `} of {suit}
+					{value === 1
+						? "Ace "
+						: `${calcCardValue({ card, isFromPlayerHand })} `}{" "}
+					of {suit}
 				</div>
 			</div>
 		</div>
