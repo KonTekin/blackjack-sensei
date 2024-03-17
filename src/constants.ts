@@ -27,6 +27,7 @@ export interface Props {
 export interface ICard {
 	suit: string;
 	value: number;
+	isHidden?: boolean;
 }
 export const blankHand: ICard = {
 	suit: "none",

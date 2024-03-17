@@ -15,8 +15,12 @@ const useGameActions = () => {
 
 	const { calculateHandValue, checkForBlackjack } = useAnalyze();
 
-	const addCardToHand = ({ isForPlayer }: { isForPlayer: boolean }) => {
+	const addCardToHand = ({
+		isForPlayer,
+		isHidden,
+	}: { isForPlayer: boolean; isHidden: boolean }) => {
 		const nextCard = dealCard();
+		nextCard.isHidden = isHidden;
 		if (isForPlayer) {
 			playerHand.push(nextCard);
 			setPlayerHand(playerHand);
@@ -51,9 +55,11 @@ const useGameActions = () => {
 
 		for (let i = count; i < 4; i++) {
 			if (i % 2 === 0) {
-				addCardToHand({ isForPlayer: false });
+				i === 0
+					? addCardToHand({ isForPlayer: false, isHidden: true })
+					: addCardToHand({ isForPlayer: false, isHidden: false });
 			} else {
-				addCardToHand({ isForPlayer: true });
+				addCardToHand({ isForPlayer: true, isHidden: false });
 			}
 		}
 

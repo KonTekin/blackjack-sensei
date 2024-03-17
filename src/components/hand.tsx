@@ -20,9 +20,11 @@ export const Hand: React.FC<HandProps> = ({ cards, isPlayerHand }) => {
 			}
 		>
 			{cards[0].value !== 0 &&
-				cards.map(({ value, suit }) => {
+				cards.map(({ value, suit, isHidden }) => {
 					const cardId = nanoid();
-					return <Card key={cardId} value={value} suit={suit} />;
+					return (
+						<Card key={cardId} value={value} suit={suit} isHidden={isHidden} />
+					);
 				})}
 		</div>
 	);

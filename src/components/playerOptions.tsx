@@ -39,7 +39,7 @@ export const PlayerOptions = () => {
 	};
 
 	const handleHitAction = () => {
-		addCardToHand({ isForPlayer: true });
+		addCardToHand({ isForPlayer: true, isHidden: false });
 		//calculate hand value
 		const currentHandValue = calculateHandValue(playerHand, true);
 		//set hand value
@@ -50,6 +50,9 @@ export const PlayerOptions = () => {
 
 	const handleStayAction = async () => {
 		setGameState(GameState.DealerPlaying);
+		dealerHand.map((card) => {
+			if (card.isHidden === true) card.isHidden = false;
+		});
 		const currentHandValue = calculateHandValue(dealerHand, false);
 		setDealerHandValue(currentHandValue);
 	};
@@ -72,7 +75,10 @@ export const PlayerOptions = () => {
 			const currentHandValue = calculateHandValue(dealerHand, false);
 			setDealerHandValue(currentHandValue);
 			if (currentHandValue < 17) {
-				setTimeout(() => addCardToHand({ isForPlayer: false }), 1000);
+				setTimeout(
+					() => addCardToHand({ isForPlayer: false, isHidden: false }),
+					1000,
+				);
 			} else {
 				setGameState(GameState.AnalyzingRound);
 			}
