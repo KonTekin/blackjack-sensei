@@ -2,13 +2,18 @@ import { useContext } from "react";
 import { GameContext } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
-import { GameState, ICard, blankHand } from "../constants";
+import { BlackjackHand, GameState, ICard, blankHand } from "../constants";
+import { displayEndOfRoundMessage } from "../utils/game_utils";
+import useAnalyze from "./useAnalyze";
 
 const useGameActions = () => {
 	const { setGameState, setGameDeck, gameDeck } = useContext(GameContext);
 	const { setPlayerBet, setPlayerHand, setPlayerHandValue, playerHand } =
 		useContext(PlayerContext);
-	const { setDealerHand, setDealerHandValue } = useContext(DealerContext);
+	const { setDealerHand, setDealerHandValue, dealerHand } =
+		useContext(DealerContext);
+
+	const { calculateHandValue, checkForBlackjack } = useAnalyze();
 
 	const addCardToHand = ({ isForPlayer }: { isForPlayer: boolean }) => {
 		const nextCard = dealCard();
@@ -39,7 +44,30 @@ const useGameActions = () => {
 		setDealerHand([blankHand]);
 	};
 
-	return { addCardToHand, dealCard, resetRound };
+	const dealInitialHands = () => {
+		const count = 0;
+		dealerHand.pop();
+		playerHand.pop();
+
+		for (let i = count; i < 4; i++) {
+			if (i % 2 === 0) {
+				addCardToHand({ isForPlayer: false });
+			} else {
+				addCardToHand({ isForPlayer: true });
+			}
+		}
+
+		const currentPlayerHandValue = calculateHandValue(playerHand, true);
+		setPlayerHandValue(currentPlayerHandValue);
+
+		const blackjack = checkForBlackjack();
+		if (blackjack !== BlackjackHand.None) {
+			displayEndOfRoundMessage(blackjack);
+			setTimeout(() => resetRound(), 5000);
+		}
+	};
+
+	return { addCardToHand, dealCard, resetRound, dealInitialHands };
 };
 
 export default useGameActions;

@@ -3,7 +3,7 @@ import { GameContext } from "../context/game";
 import { PlayerContext } from "../context/player";
 import { DealerContext } from "../context/dealer";
 import styles from "../styles/playerOptions.module.css";
-import { BlackjackHand, GameState, Winner } from "../constants";
+import { GameState, Winner } from "../constants";
 import { displayEndOfRoundMessage } from "../utils/game_utils";
 import useBetActions from "../hooks/useBetActions";
 import useGameActions from "../hooks/useGameActions";
@@ -22,13 +22,9 @@ export const PlayerOptions = () => {
 		useContext(DealerContext);
 
 	const { increaseBet, decreaseBet } = useBetActions();
-	const { resetRound, addCardToHand } = useGameActions();
-	const {
-		checkForBlackjack,
-		checkPlayerHandForBust,
-		checkForRoundWinner,
-		calculateHandValue,
-	} = useAnalyze();
+	const { resetRound, addCardToHand, dealInitialHands } = useGameActions();
+	const { checkPlayerHandForBust, checkForRoundWinner, calculateHandValue } =
+		useAnalyze();
 
 	const handleBetAction = () => {
 		if (playerBet > 0) {
@@ -48,28 +44,6 @@ export const PlayerOptions = () => {
 		const currentHandValue = calculateHandValue(playerHand, true);
 		//set hand value
 		setPlayerHandValue(currentHandValue);
-	};
-	const dealInitialHands = () => {
-		const count = 0;
-		dealerHand.pop();
-		playerHand.pop();
-
-		for (let i = count; i < 4; i++) {
-			if (i % 2 === 0) {
-				addCardToHand({ isForPlayer: false });
-			} else {
-				addCardToHand({ isForPlayer: true });
-			}
-		}
-
-		const currentPlayerHandValue = calculateHandValue(playerHand, true);
-		setPlayerHandValue(currentPlayerHandValue);
-
-		const blackjack = checkForBlackjack();
-		if (blackjack !== BlackjackHand.None) {
-			displayEndOfRoundMessage(blackjack);
-			setTimeout(() => resetRound(), 5000);
-		}
 	};
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
